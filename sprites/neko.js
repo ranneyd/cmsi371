@@ -22,6 +22,19 @@ var neko = function ( id, x, y ) {
 
             ctx.arc( 70, 100, 20, 0, 2*Math.PI)
             ctx.fill();
+
+            // heart
+
+            ctx.beginPath();
+            ctx.moveTo(x,y);
+            //         75, 40
+            ctx.bezierCurveTo(x,y-3,x-5,y-15,x-25,y-15);
+            ctx.bezierCurveTo(x-55,y-15,x-55,y+22.5,x-55,y+22.5);
+            ctx.bezierCurveTo(x-55,y+40,x-35,y+62,x,y+80);
+            ctx.bezierCurveTo(x+35,y+62,x+55,y+40,x+55,y+22.5);
+            ctx.bezierCurveTo(x+55,y+22.5,x+55,y-15,x+25,y-15);
+            ctx.bezierCurveTo(x+10,y-15,x,y-3,x,y);
+            ctx.fill();
         }
     };
 
