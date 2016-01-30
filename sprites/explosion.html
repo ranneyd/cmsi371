@@ -6,13 +6,13 @@
 <body>
 <canvas id="main" height="600" width="600"></canvas>
 <br>
-<button id="start">Regret</button>
+<button id="start">Boom</button>
 
 <script type="text/javascript" src="explosion.js"></script>
 <script type="text/javascript">
     ( function () {
-        var MAXSTEP = 150;
-        var step = 150;
+        var MAXSTEP = 20;
+        var step = 0;
 
         var explosionObj = explosion("main", {
             maxstep: MAXSTEP,
@@ -21,6 +21,10 @@
         });
 
         var animate = function(){
+            document.getElementById("main")
+                .getContext("2d")
+                .clearRect( 0, 0, 600, 600 ); // clear canvas
+                
             step++;
 
             if (step > MAXSTEP) {

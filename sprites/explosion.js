@@ -16,14 +16,10 @@ var explosion = function ( id, props) {
 
             ctx.save();
 
-            ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height ); // clear canvas
+            //ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height ); // clear canvas
 
             var w = this.width * step / this.MAXSTEP,
                 h = this.width * step / this.MAXSTEP;
-
-            ctx.fillStyle = "rgb(0, 255, 255)";
-
-            ctx.fillRect(this.x, this.y, w, h);
 
             var drawExplosion = function(ctx, x, y, w, h, color) {
                 ctx.beginPath();
@@ -136,21 +132,24 @@ var explosion = function ( id, props) {
             };
 
 
+
             ctx.save();
-            ctx.translate(this.x + w/2, this.y +  h/2);
+            
+            // Center canvas
+            ctx.translate(this.x, this.y );
+
             drawExplosion(ctx, 0, 0, w, h, "rgb(255, 0, 0)");
-            ctx.restore();
-
-            ctx.save();
-            ctx.translate(this.x + w/2, this.y +  h/2);
             drawExplosion(ctx, 0, 0, w * 0.75, h * 0.75, "rgb(255, 153, 0)");
-            ctx.restore();
-
-
-            ctx.save();
-            ctx.translate(this.x + w/2, this.y +  h/2);
             drawExplosion(ctx, 0, 0, w * 0.5, h * 0.5, "rgb(255, 255, 0)");
+
+            ctx.beginPath();
+            ctx.arc(0, 0, w * .05, h * .05, 0, 2 * Math.PI);
+            ctx.fillStyle = "rgb(0, 0, 0)";
+            ctx.fill();
+
             ctx.restore();
+
+
 
 
 
@@ -158,6 +157,6 @@ var explosion = function ( id, props) {
         }
     };
 
-    explosionObject.draw(150);
+    explosionObject.draw(0);
     return explosionObject;
 };
