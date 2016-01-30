@@ -1,16 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Neko.js Demo</title>
+    <title>Combo Demo</title>
 </head>
 <body>
-<canvas id="main" height="500" width="500"></canvas>
+<canvas id="main" height="600" width="600"></canvas>
+<br>
+<button id="start">Animate</button>
 
-
-<script type="text/javascript" src="neko.js"></script>
+<script type="text/javascript" src="kid.js"></script>
+<script type="text/javascript" src="explosion.js"></script>
 <script type="text/javascript">
     ( function () {
-        var nekoObj = neko("main", 200, 200);
+        var MAXSTEP_kid = 150;
+        var MAXSTEP_explosion = 20;
+        var step = 0;
+
+        var kidObj = kid("main", {
+            maxstep: MAXSTEP_kid,
+            x: 200,
+            y: 200
+        });
+
+        var explosionObj = explosion("main", {
+            maxstep: MAXSTEP_explosion,
+            x: 200,
+            y: 200,
+            width: 1000,
+            height:1000
+        });
+
+        var animate = function(){
+            document.getElementById("main")
+                .getContext("2d")
+                .clearRect( 0, 0, 600, 600 ); // clear canvas
+
+            step++;
+
+            if (step > MAXSTEP_kid) {
+                step = 0;
+            }
+
+            kidObj.draw(step);
+
+            if (step >= MAXSTEP_kid - MAXSTEP_explosion){
+                explosionObj.draw(step - (MAXSTEP_kid - MAXSTEP_explosion));
+            }
+
+
+
+            window.requestAnimationFrame(animate);
+        };
+
+        document.getElementById("start").onclick = function(){
+            animate();
+        }
     }());
 </script>
 </body>
