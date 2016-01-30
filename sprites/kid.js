@@ -56,8 +56,13 @@ var kid = function ( id, props) {
 
 
             // head
-            ctx.fillStyle = this.skin;
-
+            // Let's make this switch after a while
+            if(weirdness > .85 ){
+                ctx.fillStyle = this.hair;
+            } else {
+                ctx.fillStyle = this.skin;
+            }
+            
             ellipse( ctx, 0, 0, w, h);
 
             // eyebrows
@@ -67,7 +72,14 @@ var kid = function ( id, props) {
                 browW = w * .35,
                 browH = h*.02;
 
-            ctx.fillStyle = this.hair;
+
+
+            // Let's make this switch after a while
+            if(weirdness > .85){
+                ctx.fillStyle = this.skin;
+            } else {
+                ctx.fillStyle = this.hair;
+            }
 
             ctx.fillRect(browMargin, browY, browW, browH);
 
@@ -81,7 +93,7 @@ var kid = function ( id, props) {
 
 
             // eyes
-            ctx.fillStyle = "rgb(255, 255, 255)";
+            ctx.fillStyle = "rgb(255, " + Math.floor(255 - 153 * weirdness) + ", " + Math.floor(255 - 153 * weirdness) +")";
 
             var eyeW = w * .35 + w * .2 * weirdness,
                 eyeH = eyeW,
