@@ -83,10 +83,10 @@ var kid = function ( id, props) {
             // eyes
             ctx.fillStyle = "rgb(255, 255, 255)";
 
-            var eyeW = w * .35 + w * .1 * weirdness,
+            var eyeW = w * .35 + w * .2 * weirdness,
                 eyeH = eyeW,
                 eyeY = h * .43 - h * .2 * weirdness,
-                eyeMargin = w * .05;
+                eyeMargin = w * .05 - w * .2 * weirdness;
 
             ellipse( ctx, eyeMargin, eyeY, eyeW, eyeH );
 
@@ -126,7 +126,7 @@ var kid = function ( id, props) {
             var mouthW = w * .4,
                 mouthR = mouthW / 2,
                 mouthX = w / 2,
-                mouthY = h * .75;
+                mouthY = h * .75 + h* .2 * weirdness;
 
             ctx.moveTo(mouthX, mouthY);
 
