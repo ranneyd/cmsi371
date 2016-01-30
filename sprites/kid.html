@@ -11,11 +11,25 @@
 <script type="text/javascript" src="kid.js"></script>
 <script type="text/javascript">
     ( function () {
-        var kidObj = kid("main", 50, 50, 1);
+        var MAXSTEP = 150;
+        var step = 0;
+
+        var kidObj = kid("main", {
+            maxstep: MAXSTEP,
+            x: 50,
+            y: 50
+        });
 
         var animate = function(){
-            kidObj.step();
-            kidObj.draw();
+            step++;
+
+            if (step > MAXSTEP) {
+                step = 0;
+            }
+
+            kidObj.draw(step);
+
+
             window.requestAnimationFrame(animate);
         };
 

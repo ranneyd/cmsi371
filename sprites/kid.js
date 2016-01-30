@@ -1,7 +1,8 @@
 "use strict";
 
 
-var kid = function ( id, x, y, scale) {
+var kid = function ( id, props) {
+
     var ellipse = function(ctx, x, y, w, h){
         //http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
         var kappa = .5522848,
@@ -23,35 +24,36 @@ var kid = function ( id, x, y, scale) {
     };
     var kidObject = {
         "canvas": document.getElementById(id),
-        MAXSTEP: 200,
-        stepval: 0,
-        step: function(){
-            console.log(this.stepval);
-            if(++this.stepval === this.MAXSTEP){
-                this.stepval = 0;
-            }
-        },
-        draw: function () {
+        MAXSTEP: props.maxstep !== undefined ? props.maxstep : 100,
+        x: props.x !== undefined ? props.x : 0,
+        y: props.y !== undefined ? props.y : 0,
+        width: props.width !== undefined ? props.width : 200,
+        height: props.height !== undefined ? props.height : 260,
+        hair: props.hair !== undefined ? props.hair : "rgb( 139, 69, 19 )",
+        skin: props.skin !== undefined ? props.skin : "rgb( 255, 255, 0 )",
+        eyeColor: props.eyeColor !== undefined ? props.eyeColor : "rgb( 0, 255, 255 )",
+
+        draw: function (step) {
             var ctx = this.canvas.getContext( "2d" );
 
             ctx.save();
 
             ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height ); // clear canvas
 
-            var w = 200 + 100 * this.stepval / this.MAXSTEP,
-                h = 260;
+            var w = this.width + 100 * step / this.MAXSTEP,
+                h = this.height;
 
             // Center our origin
-            ctx.translate(x + w / 2, y +h / 2);
+            ctx.translate(this.x + w / 2, this.y +h / 2);
 
 
-            ctx.rotate(2 * Math.PI * this.stepval / this.MAXSTEP);
+            ctx.rotate(2 * Math.PI * step / this.MAXSTEP);
 
             ctx.translate(- w / 2 , - h / 2);
 
 
             // head
-            ctx.fillStyle = "rgb( 255, 255, 0 )";
+            ctx.fillStyle = this.skin;
 
             ellipse( ctx, 0, 0, w, h );
 
@@ -62,7 +64,7 @@ var kid = function ( id, x, y, scale) {
                 browW = w * .35,
                 browH = h*.02;
 
-            ctx.fillStyle = "rgb( 139, 69, 19 )";
+            ctx.fillStyle = this.hair;
 
             ctx.fillRect(browMargin, browY, browW, browH);
 
@@ -84,7 +86,7 @@ var kid = function ( id, x, y, scale) {
 
 
             // eyes
-            ctx.fillStyle = "rgb( 255, 255, 255 )";
+            ctx.fillStyle = "rgb(255, 255, 255)";
 
             var eyeW = w * .35,
                 eyeH = eyeW,
@@ -95,7 +97,7 @@ var kid = function ( id, x, y, scale) {
 
             ellipse( ctx, w - eyeMargin - eyeW, eyeY, eyeW, eyeH );
 
-            ctx.fillStyle = "rgb( 0, 255, 255 )";
+            ctx.fillStyle = this.eyeColor;
 
             ellipse( ctx, 
                      eyeMargin + eyeW/4,
@@ -147,6 +149,6 @@ var kid = function ( id, x, y, scale) {
         }
     };
 
-    kidObject.draw();
+    kidObject.draw(0);
     return kidObject;
 };
