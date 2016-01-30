@@ -1,21 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>explode.js Demo</title>
+    <title>explosion.js Demo</title>
 </head>
 <body>
 <canvas id="main" height="600" width="600"></canvas>
 <br>
-<button id="start">Explode</button>
+<button id="start">Regret</button>
 
 <script type="text/javascript" src="explosion.js"></script>
 <script type="text/javascript">
     ( function () {
-        var expObj = explosion("main", 50, 50, 1);
+        var MAXSTEP = 150;
+        var step = 150;
+
+        var explosionObj = explosion("main", {
+            maxstep: MAXSTEP,
+            x: 100,
+            y: 100
+        });
 
         var animate = function(){
-            expObj.step();
-            expObj.draw();
+            step++;
+
+            if (step > MAXSTEP) {
+                step = 0;
+            }
+
+            explosionObj.draw(step);
+
+
             window.requestAnimationFrame(animate);
         };
 
