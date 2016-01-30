@@ -3,7 +3,7 @@
 
 var kid = function ( id, props) {
 
-    var ellipse = function(ctx, x, y, w, h){
+    var ellipse = function(ctx, x, y, w, h, half){
         //http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
         var kappa = .5522848,
             ox = (w / 2) * kappa, // control point offset horizontal
@@ -17,8 +17,11 @@ var kid = function ( id, props) {
         ctx.moveTo(x, ym);
         ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
         ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
-        ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
-        ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+        if (!half){
+            ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
+            ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+        }
+
 
         ctx.fill();
     };
@@ -38,16 +41,16 @@ var kid = function ( id, props) {
 
             ctx.save();
 
-            ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height ); // clear canvas
-
-            var w = this.width + 100 * step / this.MAXSTEP,
+            // This will get weirder as time progresses
+            var weirdness = step / this.MAXSTEP,
+                w = this.width + this.width * .8 * weirdness,
                 h = this.height;
 
             // Center our origin
-            ctx.translate(this.x + w / 2, this.y +h / 2);
+            ctx.translate(this.x, this.y);
 
 
-            ctx.rotate(2 * Math.PI * step / this.MAXSTEP);
+            ctx.rotate(2 * Math.PI * weirdness);
 
             ctx.translate(- w / 2 , - h / 2);
 
@@ -55,12 +58,12 @@ var kid = function ( id, props) {
             // head
             ctx.fillStyle = this.skin;
 
-            ellipse( ctx, 0, 0, w, h );
+            ellipse( ctx, 0, 0, w, h);
 
             // eyebrows
 
             var browMargin = w * .05,
-                browY = h * .4,
+                browY = h * .4 - h * .2 * weirdness,
                 browW = w * .35,
                 browH = h*.02;
 
@@ -72,15 +75,7 @@ var kid = function ( id, props) {
 
             // Hair
 
-
-            ctx.moveTo( 0, h*.3);
-
-            ctx.beginPath(); 
-
-            ctx.arc(w/2, w/2, w/2, Math.PI, 0);
-
-            ctx.closePath();
-
+            ellipse ( ctx, 0, 0, w, h*.75, true);
 
             ctx.fill();
 
@@ -88,9 +83,9 @@ var kid = function ( id, props) {
             // eyes
             ctx.fillStyle = "rgb(255, 255, 255)";
 
-            var eyeW = w * .35,
+            var eyeW = w * .35 + w * .1 * weirdness,
                 eyeH = eyeW,
-                eyeY = h * .43,
+                eyeY = h * .43 - h * .2 * weirdness,
                 eyeMargin = w * .05;
 
             ellipse( ctx, eyeMargin, eyeY, eyeW, eyeH );

@@ -21,6 +21,10 @@
         });
 
         var animate = function(){
+            document.getElementById("main")
+                .getContext("2d")
+                .clearRect( 0, 0, 600, 600 ); // clear canvas
+                
             step++;
 
             if (step > MAXSTEP) {
