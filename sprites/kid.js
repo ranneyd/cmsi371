@@ -57,7 +57,7 @@ var kid = function ( id, props) {
 
             // head
             // Let's make this switch after a while
-            if(weirdness > .85 ){
+            if(weirdness > .8 && Math.floor(step / 5) % 2){
                 ctx.fillStyle = this.hair;
             } else {
                 ctx.fillStyle = this.skin;
@@ -75,7 +75,7 @@ var kid = function ( id, props) {
 
 
             // Let's make this switch after a while
-            if(weirdness > .85){
+            if(weirdness > .8 && Math.floor(step / 10) % 2){
                 ctx.fillStyle = this.skin;
             } else {
                 ctx.fillStyle = this.hair;
