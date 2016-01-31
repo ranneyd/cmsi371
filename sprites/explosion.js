@@ -7,7 +7,7 @@ var explosion = function ( id, props) {
         "canvas": document.getElementById(id),
         MAXSTEP: props.maxstep !== undefined ? props.maxstep : 100,
         x: props.x !== undefined ? props.x : 0,
-        y: props.y !== undefined ? props.x : 0,
+        y: props.y !== undefined ? props.y : 0,
         width: props.width !== undefined ? props.width : 300,
         height: props.height !== undefined ? props.height : 300,
 
