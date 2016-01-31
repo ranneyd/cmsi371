@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>computer.js Demo</title>
+</head>
+<body>
+<canvas id="main" height="600" width="600"></canvas>
+<br>
+<button id="start">Browse the Dank Memes</button>
+
+<script type="text/javascript" src="computer.js"></script>
+<script type="text/javascript">
+    ( function () {
+        var step = 0;
+
+        var computerObj = computer("main", {
+            period: 20,
+            x: 50,
+            y: 50
+        });
+
+        var animate = function(){
+            document.getElementById("main")
+                .getContext("2d")
+                .clearRect( 0, 0, 600, 600 ); // clear canvas
+                
+            step++;
+
+            computerObj.draw(step);
+
+
+            window.requestAnimationFrame(animate);
+        };
+
+        document.getElementById("start").onclick = function(){
+            animate();
+        }
+    }());
+</script>
+</body>
+</html>
