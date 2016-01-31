@@ -23,8 +23,17 @@ var computer = function ( id, props) {
             // Center our origin
             ctx.translate(this.x, this.y);
 
-            ctx.fillStyle  = "rgb(150, 150, 150)";
-            ctx.fillRect(0, 0, w, h);
+            ctx.fillStyle  = "rgb(100, 100, 100)";
+
+            var standWidth = .3,
+                standHeight = .1,
+                baseWidth = .5,
+                baseHeight = .05,
+                screenHeight = 1 - standHeight -  baseHeight;
+
+            ctx.fillRect(0, 0, w, h * screenHeight);
+            ctx.fillRect(w * (1 - standWidth) / 2, h * screenHeight, w * standWidth, h * standHeight);
+            ctx.fillRect(w * (1 - baseWidth) / 2)
 
             ctx.restore();
         }
