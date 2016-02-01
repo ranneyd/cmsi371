@@ -5,7 +5,7 @@ var computer = function ( id, props) {
 
     var computerObject = {
         "canvas": document.getElementById(id),
-        period:  props.period !== undefined ? props.period : 10,
+        MAXSTEP:  props.MAXSTEP !== undefined ? props.MAXSTEP : 10,
         x: props.x !== undefined ? props.x : 0,
         y: props.y !== undefined ? props.y : 0,
         width: props.width !== undefined ? props.width : 200,
@@ -39,14 +39,12 @@ var computer = function ( id, props) {
             ctx.fillRect(w * (1 - standWidth) / 2, h * screenHeight, w * standWidth, h * standHeight);
             ctx.fillRect(w * (1 - baseWidth) / 2, h * (1 - baseHeight), w * baseWidth, h * baseHeight);
 
-            ctx.font = "20px Arial";
+            // Magic number found empirically to produce the right size of text
+            ctx.font = w / 8 + "px Arial";
             ctx.textAlign = "center";
 
-            // Only go if not the 0th step
-            if (step && !this.colorPicked){
-                console.log(step);
-                if( Math.floor(step / this.period) % 2){
-                    console.log("set");
+            if (step >= this.MAXSTEP / 2){
+                if(!this.colorPicked){
                     var textPicker = Math.floor(Math.random() * 3);
 
                     if( textPicker == 0){
@@ -61,11 +59,11 @@ var computer = function ( id, props) {
                     }
 
                     this.colorPicked = true;
-                } else {                    
-                    this.colorPicked = false;
-                    this.textColor = "rgb(0, 0, 0)";
-                    this.backgroundColor = "rgb(0, 0, 0)";
                 }
+            } else {
+                this.colorPicked = false;
+                this.textColor = "rgb(0, 0, 0)";
+                this.backgroundColor = "rgb(0, 0, 0)";
             }
 
             ctx.fillStyle = this.backgroundColor;

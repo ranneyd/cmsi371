@@ -27,7 +27,7 @@ var kid = function ( id, props) {
     };
     var kidObject = {
         "canvas": document.getElementById(id),
-        MAXSTEP: props.maxstep !== undefined ? props.maxstep : 100,
+        MAXSTEP: props.MAXSTEP !== undefined ? props.MAXSTEP : 100,
         x: props.x !== undefined ? props.x : 0,
         y: props.y !== undefined ? props.y : 0,
         width: props.width !== undefined ? props.width : 200,

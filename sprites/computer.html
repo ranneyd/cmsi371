@@ -11,12 +11,15 @@
 <script type="text/javascript" src="computer.js"></script>
 <script type="text/javascript">
     ( function () {
+        var MAXSTEP = 15;
         var step = 0;
 
         var computerObj = computer("main", {
-            period: 10,
+            MAXSTEP: MAXSTEP,
             x: 50,
-            y: 50
+            y: 50,
+            width: 300,
+            height:300
         });
 
         var animate = function(){
@@ -25,6 +28,10 @@
                 .clearRect( 0, 0, 600, 600 ); // clear canvas
                 
             step++;
+
+            if (step > MAXSTEP) {
+                step = 0;
+            }
 
             computerObj.draw(step);
 
