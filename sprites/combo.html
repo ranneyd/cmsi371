@@ -4,17 +4,21 @@
     <title>Combo Demo</title>
 </head>
 <body>
-<canvas id="main" height="600" width="600"></canvas>
+<h1>Epilepsy Warning</h1>
+<canvas id="main" width="800" height="600"></canvas>
 <br>
 <button id="start">Animate</button>
 
 <script type="text/javascript" src="kid.js"></script>
 <script type="text/javascript" src="explosion.js"></script>
+<script type="text/javascript" src="computer.js"></script>
 <script type="text/javascript">
     ( function () {
         var MAXSTEP_kid = 250;
         var MAXSTEP_explosion = 15;
-        var step = 0;
+        var MAXSTEP_computer = 5;
+        var step_kid = 0;
+        var step_computer = 0;
 
         var kidObj = kid("main", {
             MAXSTEP: MAXSTEP_kid,
@@ -30,24 +34,37 @@
             height:1500
         });
 
+        var computerObj = computer("main", {
+            MAXSTEP: MAXSTEP_computer,
+            x: 500,
+            y: 200,
+        });
+
         var animate = function(){
             document.getElementById("main")
                 .getContext("2d")
-                .clearRect( 0, 0, 600, 600 ); // clear canvas
+                .clearRect( 0, 0, 800, 600 ); // clear canvas
 
-            step++;
+            step_kid++;
 
-            if (step > MAXSTEP_kid) {
-                step = 0;
-            }
-
-            kidObj.draw(step);
-
-            if (step >= MAXSTEP_kid - MAXSTEP_explosion){
-                explosionObj.draw(step - (MAXSTEP_kid - MAXSTEP_explosion));
+            if (step_kid > MAXSTEP_kid) {
+                step_kid = 0;
             }
 
 
+            step_computer++;
+
+            if (step_computer > MAXSTEP_computer) {
+                step_computer = 0;
+            }
+
+            computerObj.draw(step_computer);
+
+            kidObj.draw(step_kid);
+
+            if (step_kid >= MAXSTEP_kid - MAXSTEP_explosion){
+                explosionObj.draw(step_kid - (MAXSTEP_kid - MAXSTEP_explosion));
+            }
 
             window.requestAnimationFrame(animate);
         };

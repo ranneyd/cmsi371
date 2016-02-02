@@ -11,29 +11,45 @@
 <script type="text/javascript" src="explosion.js"></script>
 <script type="text/javascript">
     ( function () {
-        var MAXSTEP = 15;
-        var step = 0;
+        var explosion_period = 20,
+            step = 0,
+            centerX = 300,
+            centerY = 300,
+            scale = 4,
+            ctx = document.getElementById("main").getContext( "2d" );
 
-        var explosionObj = explosion("main", {
-            MAXSTEP: MAXSTEP,
-            x: 200,
-            y: 200
-        });
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        var explosionObj = explosion("main");
+
+        ctx.restore();
+
+
+
 
         var animate = function(){
-            document.getElementById("main")
-                .getContext("2d")
-                .clearRect( 0, 0, 600, 600 ); // clear canvas
+            var ctx = document.getElementById("main").getContext( "2d" );
+            ctx.clearRect( 0, 0, 600, 600 ); // clear canvas
+
+            ctx.save();
+
+                
                 
             step++;
 
-            if (step > MAXSTEP) {
+            if (step > explosion_period) {
                 step = 0;
             }
+            
+            ctx.translate(centerX, centerY);
 
-            explosionObj.draw(step);
+            var ourScale = scale * step / explosion_period;
 
+            ctx.scale(ourScale, ourScale);
+            explosionObj.draw();
 
+            ctx.restore();
             window.requestAnimationFrame(animate);
         };
 

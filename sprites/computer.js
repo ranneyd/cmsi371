@@ -1,32 +1,37 @@
 "use strict";
 
+/*
+    prop        | default
+    ------------------------
+    textColor   | "black"
+    backColor   | "black"
+    compColor   | "rgb(100, 100, 100)"
+*/
 
-var computer = function ( id, props) {
+var computer = function ( id, initial_props ) {
 
     var computerObject = {
         "canvas": document.getElementById(id),
-        MAXSTEP:  props.MAXSTEP !== undefined ? props.MAXSTEP : 10,
-        x: props.x !== undefined ? props.x : 0,
-        y: props.y !== undefined ? props.y : 0,
-        width: props.width !== undefined ? props.width : 200,
-        height: props.height !== undefined ? props.height : 200,
-        colorPicked: false,
-        backgroundColor: "rgb(0, 0, 0)",
-        textColor: "rgb(0, 0, 0)",
 
-        draw: function (step) {
+        draw: function (props) {
+            // So javascript doesn't freak out if no props are passed
+            props = props || {};
+
             var ctx = this.canvas.getContext( "2d" );
 
             ctx.save();
 
-            // This will get weirder as time progresses
-            var w = this.width,
-                h = this.height;
+            var w         = 200,
+                h         = 200,
+                textColor = props.textColor || "black",
+                backColor = props.backColor || "black",
+                compColor = props.compColor || "rgb(100, 100, 100)";
 
-            // Center our origin
-            ctx.translate(this.x, this.y);
 
-            ctx.fillStyle  = "rgb(100, 100, 100)";
+            ctx.translate(- w / 2 , - h / 2);
+
+
+            ctx.fillStyle  = compColor;
 
             var standWidth = .3,
                 standHeight = .1,
@@ -35,50 +40,39 @@ var computer = function ( id, props) {
                 screenHeight = 1 - standHeight -  baseHeight,
                 bezel = .05;
 
+            // Screen
             ctx.fillRect(0, 0, w, h * screenHeight);
-            ctx.fillRect(w * (1 - standWidth) / 2, h * screenHeight, w * standWidth, h * standHeight);
-            ctx.fillRect(w * (1 - baseWidth) / 2, h * (1 - baseHeight), w * baseWidth, h * baseHeight);
+            // Stand neck
+            ctx.fillRect(w * (1 - standWidth) / 2, 
+                         h * screenHeight,
+                         w * standWidth,
+                         h * standHeight);
+            // Stand base
+            ctx.fillRect(w * (1 - baseWidth) / 2,
+                         h * (1 - baseHeight),
+                         w * baseWidth,
+                         h * baseHeight);
 
             // Magic number found empirically to produce the right size of text
             ctx.font = w / 8 + "px Arial";
             ctx.textAlign = "center";
 
-            if (step >= this.MAXSTEP / 2){
-                if(!this.colorPicked){
-                    var textPicker = Math.floor(Math.random() * 3);
+            ctx.fillStyle = backColor;
 
-                    if( textPicker == 0){
-                        this.textColor = "rgb(255, 0, 0)";
-                        this.backgroundColor = "rgb(0, 255, 255)";
-                    } else if( textPicker == 1){
-                        this.textColor = "rgb(0, 255, 0)";
-                        this.backgroundColor = "rgb(255, 0, 255)";
-                    } else {
-                        this.textColor = "rgb(0, 0, 255)";
-                        this.backgroundColor = "rgb(255, 255, 0)";
-                    }
+            // The actual screen
+            ctx.fillRect(w * bezel,
+                         w * bezel,
+                         w * (1 - 2 * bezel),
+                         h * (screenHeight - bezel - bezel));
 
-                    this.colorPicked = true;
-                }
-            } else {
-                this.colorPicked = false;
-                this.textColor = "rgb(0, 0, 0)";
-                this.backgroundColor = "rgb(0, 0, 0)";
-            }
-
-            ctx.fillStyle = this.backgroundColor;
-
-            ctx.fillRect(w * bezel, w * bezel, w * (1 - 2 * bezel), h * (screenHeight - bezel - bezel));
-
-            ctx.fillStyle = this.textColor;
+            ctx.fillStyle = textColor;
 
             ctx.fillText("DANK MEMES", w / 2, h * screenHeight / 2);
-
 
             ctx.restore();
         }
     };
 
-    computerObject.draw(0);
+    computerObject.draw(initial_props);
     return computerObject;
 };

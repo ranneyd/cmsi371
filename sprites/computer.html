@@ -4,38 +4,72 @@
     <title>computer.js Demo</title>
 </head>
 <body>
-<canvas id="main" height="600" width="600"></canvas>
+<canvas id="main" height="300" width="300"></canvas>
 <br>
 <button id="start">Browse the Dank Memes</button>
 
 <script type="text/javascript" src="computer.js"></script>
 <script type="text/javascript">
     ( function () {
-        var MAXSTEP = 15;
-        var step = 0;
 
-        var computerObj = computer("main", {
-            MAXSTEP: MAXSTEP,
-            x: 50,
-            y: 50,
-            width: 300,
-            height:300
-        });
+        var flicker_rate = 4,
+            step = 0,
+            centerX = 100,
+            centerY = 100,
+            textColor = "black",
+            backColor = "black",
+            ctx = document.getElementById("main").getContext( "2d" );
+
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        var computerObj = computer("main");
+
+        ctx.restore();
 
         var animate = function(){
-            document.getElementById("main")
-                .getContext("2d")
-                .clearRect( 0, 0, 600, 600 ); // clear canvas
+            var ctx = document.getElementById("main").getContext( "2d" );
+            ctx.clearRect( 0, 0, 600, 600 ); // clear canvas
+
+            ctx.save();
+
+            ctx.translate(centerX, centerY);
+
                 
             step++;
 
-            if (step > MAXSTEP) {
+            if (step > flicker_rate) {
+                var textPicker = Math.floor(Math.random() * 3);
+
+                var randomBrightRGB = function () {
+                    var min = 150;
+                    return 0 | Math.random() * (255 - min) + min;
+                };
+
+                if( textPicker == 0){
+                    textColor = "rgb(255, 0, 0)";
+                    backColor = "rgb(0, "+ randomBrightRGB() + ", "+ randomBrightRGB() + ")";
+                } else if( textPicker == 1){
+                    textColor = "rgb(0, 255, 0)";
+                    backColor = "rgb("+ randomBrightRGB() + ", 0, "+ randomBrightRGB() + ")";
+                } else {
+                    textColor = "rgb(0, 0, 255)";
+                    backColor = "rgb("+ randomBrightRGB() + ", "+ randomBrightRGB() + ", 0)";
+                }
+
                 step = 0;
+            } else if (step > flicker_rate / 2){
+                textColor = "black";
+                backColor = "black";
             }
 
-            computerObj.draw(step);
+            computerObj.draw({
+                textColor : textColor,
+                backColor : backColor,
+                compColor : "rgb(100, 100, 100)"
+            });
 
-
+            ctx.restore();
             window.requestAnimationFrame(animate);
         };
 

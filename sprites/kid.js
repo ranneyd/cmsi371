@@ -1,9 +1,17 @@
 "use strict";
 
+/*
+    prop        | default
+    ------------------------
+    hairColor  | "rgb( 139, 69, 19 )"
+    skinColor  | "rgb( 255, 255, 0 )"
+    eyeColor   | "rgb( 0, 255, 255 )"
+    eyeRedness | 0  // percentage
+*/
 
-var kid = function ( id, props) {
+var kid = function ( id, initial_props ) {
 
-    var ellipse = function(ctx, x, y, w, h, half){
+    var ellipse = function(ctx, x, y, w, h, half) {
         //http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
         var kappa = .5522848,
             ox = (w / 2) * kappa, // control point offset horizontal
@@ -22,42 +30,33 @@ var kid = function ( id, props) {
             ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
         }
 
-
         ctx.fill();
     };
     var kidObject = {
         "canvas": document.getElementById(id),
-        MAXSTEP: props.MAXSTEP !== undefined ? props.MAXSTEP : 100,
-        x: props.x !== undefined ? props.x : 0,
-        y: props.y !== undefined ? props.y : 0,
-        width: props.width !== undefined ? props.width : 200,
-        height: props.height !== undefined ? props.height : 260,
-        hair: props.hair !== undefined ? props.hair : "rgb( 139, 69, 19 )",
-        skin: props.skin !== undefined ? props.skin : "rgb( 255, 255, 0 )",
-        eyeColor: props.eyeColor !== undefined ? props.eyeColor : "rgb( 0, 255, 255 )",
 
-        draw: function (step) {
+        draw: function (props) {
+            // So javascript doesn't freak out if no props are passed
+            props = props || {};
+
             var ctx = this.canvas.getContext( "2d" );
 
             ctx.save();
 
             // This will get weirder as time progresses
-            var weirdness = step / this.MAXSTEP,
-                w = this.width + this.width * .8 * weirdness,
-                h = this.height;
-
-            // Center our origin
-            ctx.translate(this.x, this.y);
-
-
-            ctx.rotate(2 * Math.PI * weirdness);
+            var w = 200,
+                h = 260,
+                hairColor  = props.hairColor  || "rgb( 139, 69, 19 )",
+                skinColor  = props.skinColor  || "rgb( 255, 255, 0 )",
+                eyeColor   = props.eyeColor   || "rgb( 0, 255, 255 )",
+                eyeRedness = props.eyeRedness || 0;
 
             ctx.translate(- w / 2 , - h / 2);
 
 
             // head
             // Let's make this switch after a while
-            if(weirdness > .8 && Math.floor(step / 5) % 2){
+            if(weirdness > .8 && 0 | step / 5 % 2){
                 ctx.fillStyle = this.hair;
             } else {
                 ctx.fillStyle = this.skin;
@@ -75,7 +74,7 @@ var kid = function ( id, props) {
 
 
             // Let's make this switch after a while
-            if(weirdness > .8 && Math.floor(step / 10) % 2){
+            if(weirdness > .8 && 0 | step / 10 % 2){
                 ctx.fillStyle = this.skin;
             } else {
                 ctx.fillStyle = this.hair;
@@ -93,7 +92,7 @@ var kid = function ( id, props) {
 
 
             // eyes
-            ctx.fillStyle = "rgb(255, " + Math.floor(255 - 153 * weirdness) + ", " + Math.floor(255 - 153 * weirdness) +")";
+            ctx.fillStyle = "rgb(255, " + (0 | 255 - 153 * weirdness) + ", " + (0 | 255 - 153 * weirdness) +")";
 
             var eyeW = w * .35 + w * .2 * weirdness,
                 eyeH = eyeW,
@@ -156,6 +155,6 @@ var kid = function ( id, props) {
         }
     };
 
-    kidObject.draw(0);
+    kidObject.draw(initial_props);
     return kidObject;
 };

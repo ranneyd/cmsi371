@@ -1,27 +1,46 @@
 "use strict";
 
+/*
+    prop        | default
+    ------------------------
+    useInside   | true               // Have a circle at center of explosion
+    insideColor | "black"            // Color of above center
+    insideRatio | .05                // Ratio of inner circle to size of whole explosion
+    innerRatio  | .5                 // Ratio of inner ring of explosion to outer ring
+    innerColor  | "rgb(255, 255, 0)" // Color of above inner ring (yellow)
+    middleRatio | .75                // Ratio of middle ring of explosion to outer ring
+    middleColor | "rgb(255, 153, 0)" // Color of above middle ring (orange)
+    outerColor  | "rgb(255, 0, 0)""  // Color of outer ring of explosion (red)
+*/
 
-var explosion = function ( id, props) {
+var explosion = function ( id, initial_props) {
 
     var explosionObject = {
         "canvas": document.getElementById(id),
-        MAXSTEP: props.MAXSTEP !== undefined ? props.MAXSTEP : 100,
-        x: props.x !== undefined ? props.x : 0,
-        y: props.y !== undefined ? props.y : 0,
-        width: props.width !== undefined ? props.width : 300,
-        height: props.height !== undefined ? props.height : 300,
 
-        draw: function (step) {
+        draw: function (props) {
+            // So javascript doesn't freak out if no props are passed
+            props = props || {};
+
             var ctx = this.canvas.getContext( "2d" );
 
             ctx.save();
 
-            //ctx.clearRect( 0, 0, this.canvas.width, this.canvas.height ); // clear canvas
+            var w = 200,
+                h = 200,
+                useInside   = props.useInside === undefined ? true : props.useInside,
+                insideRatio = props.insideRatio || .05,
+                insideColor = props.insideColor || "black",
+                innerRatio  = props.innerRatio  || .5,
+                innerColor  = props.innerColor  || "rgb(255, 255, 0)",
+                middleRatio = props.middleRatio || .75,
+                middleColor = props.middleColor || "rgb(255, 153, 0)",
+                outerColor  = props.outerColor  || "rgb(255, 0, 0)";
 
-            var w = this.width * step / this.MAXSTEP,
-                h = this.width * step / this.MAXSTEP;
+            var drawExplosion = function(ctx, w, h, color) {
+                var x = 0,
+                    y = 0;
 
-            var drawExplosion = function(ctx, x, y, w, h, color) {
                 ctx.beginPath();
                 // 10x, 10y
                 // -5, -5
@@ -124,39 +143,29 @@ var explosion = function ( id, props) {
                 y += h * 0.05;
                 ctx.lineTo(x, y);
 
-
                 ctx.closePath();
 
                 ctx.fillStyle = color;
                 ctx.fill();
             };
-
-
-
-            ctx.save();
             
-            // Center canvas
-            ctx.translate(this.x, this.y );
+            drawExplosion(ctx, w, h, outerColor);
+            drawExplosion(ctx, w * middleRatio, h * middleRatio, middleColor);
+            drawExplosion(ctx, w * innerRatio, h * innerRatio, innerColor);
 
-            drawExplosion(ctx, 0, 0, w, h, "rgb(255, 0, 0)");
-            drawExplosion(ctx, 0, 0, w * 0.75, h * 0.75, "rgb(255, 153, 0)");
-            drawExplosion(ctx, 0, 0, w * 0.5, h * 0.5, "rgb(255, 255, 0)");
+            if ( insideColor ) {
+                ctx.beginPath();
 
-            ctx.beginPath();
-            ctx.arc(0, 0, w * .05, h * .05, 0, 2 * Math.PI);
-            ctx.fillStyle = "rgb(0, 0, 0)";
-            ctx.fill();
+                ctx.arc(0, 0, w * insideRatio, h * insideRatio, 0, 2 * Math.PI);
+                ctx.fillStyle = insideColor;
+                ctx.fill();
+            }
 
-            ctx.restore();
-
-
-
-
-
+            
             ctx.restore();
         }
     };
 
-    explosionObject.draw(0);
+    explosionObject.draw(initial_props);
     return explosionObject;
 };
