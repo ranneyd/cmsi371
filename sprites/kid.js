@@ -81,7 +81,7 @@ var kid = function ( id, initial_props ) {
             ctx.fillRect(w - browMargin - browW, browY, browW, browH);
 
             // Hair
-            ellipse ( ctx, 0, 0, w, h*.75, true );
+            ellipse ( ctx, 0, 0, w, h * .75, true );
 
             ctx.fill();
 
