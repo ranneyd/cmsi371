@@ -12,52 +12,64 @@
 <script type="text/javascript">
     ( function () {
 
-        var flicker_rate = 4,
-            step = 0,
-            centerX = 100,
-            centerY = 100,
+        var ctx = document.getElementById("main").getContext( "2d" ),
+            flicker_rate = 4,
+            computer_step = 0,
+
+            computerX = 100,
+            computerY = 100,
+
             textColor = "black",
-            backColor = "black",
-            ctx = document.getElementById("main").getContext( "2d" );
+            backColor = "black";
 
         ctx.save();
-        ctx.translate(centerX, centerY);
+        ctx.translate( computerX, computerY );
 
-        var computerObj = computer("main");
+        var computerObj = computer( "main" );
 
         ctx.restore();
 
-        var animate = function(){
+        var animate = function() {
             ctx.clearRect( 0, 0, 600, 600 ); // clear canvas
 
+            // computer
             ctx.save();
+            ctx.translate( computerX, computerY );
+            
+            computer_step++;
 
-            ctx.translate(centerX, centerY);
-
-                
-            step++;
-
-            if (step > flicker_rate) {
-                var textPicker = Math.floor(Math.random() * 3);
+            // Pick new colors
+            if ( computer_step > flicker_rate ) {
+                // We're either going to pump the red, green or blue
+                var textPicker = Math.floor( Math.random() * 3 );
 
                 var randomBrightRGB = function () {
                     var min = 150;
                     return 0 | Math.random() * (255 - min) + min;
                 };
 
-                if( textPicker == 0){
-                    textColor = "rgb(255, 0, 0)";
-                    backColor = "rgb(0, "+ randomBrightRGB() + ", "+ randomBrightRGB() + ")";
-                } else if( textPicker == 1){
-                    textColor = "rgb(0, 255, 0)";
-                    backColor = "rgb("+ randomBrightRGB() + ", 0, "+ randomBrightRGB() + ")";
+                if ( textPicker === 0 ) {
+                    textColor = "rgb( 255, 0, 0 )";
+                    backColor = "rgb(0," 
+                                     + randomBrightRGB() + ","
+                                     + randomBrightRGB() + ")";
+                } else if ( textPicker === 1 ) {
+                    textColor = "rgb( 0, 255, 0 )";
+                    backColor = "rgb(" + randomBrightRGB() + ","
+                                     + "0,"
+                                     + randomBrightRGB() + ")";
                 } else {
-                    textColor = "rgb(0, 0, 255)";
-                    backColor = "rgb("+ randomBrightRGB() + ", "+ randomBrightRGB() + ", 0)";
+                    textColor = "rgb( 0, 0, 255 )";
+                    backColor = "rgb(" + randomBrightRGB() + ","
+                                     + randomBrightRGB() + ","
+                                     + "0)";
                 }
 
-                step = 0;
-            } else if (step > flicker_rate / 2){
+                computer_step = 0;
+            }
+
+            // Second half of period is all black
+            if ( computer_step > flicker_rate / 2 ) {
                 textColor = "black";
                 backColor = "black";
             }
@@ -65,14 +77,15 @@
             computerObj.draw({
                 textColor : textColor,
                 backColor : backColor,
-                compColor : "rgb(100, 100, 100)"
+                compColor : "rgb( 100, 100, 100 )"
             });
 
             ctx.restore();
+
             window.requestAnimationFrame(animate);
         };
 
-        document.getElementById("start").onclick = function(){
+        document.getElementById( "start" ).onclick = function() {
             animate();
         }
     }());

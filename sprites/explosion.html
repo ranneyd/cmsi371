@@ -11,48 +11,43 @@
 <script type="text/javascript" src="explosion.js"></script>
 <script type="text/javascript">
     ( function () {
-        var explosion_period = 20,
-            step = 0,
-            centerX = 300,
-            centerY = 300,
-            max_scale = 4,
-            ctx = document.getElementById("main").getContext( "2d" );
+        var ctx = document.getElementById( "main" ).getContext( "2d" ),
+            explosion_period = 20,
+            explosion_step = 0,
+            explosionX = 300,
+            explosionY = 300,
+            max_scale = 4;
 
         ctx.save();
-        ctx.translate(centerX, centerY);
+        ctx.translate( explosionX, explosionY );
 
-        var explosionObj = explosion("main");
+        var explosionObj = explosion( "main" );
 
         ctx.restore();
 
-
-
-
-        var animate = function(){
+        var animate = function() {
             ctx.clearRect( 0, 0, 600, 600 ); // clear canvas
 
             ctx.save();
+            ctx.translate( explosionX, explosionY );
 
-                
-                
-            step++;
+            explosion_step++;
 
-            if (step > explosion_period) {
-                step = 0;
+            if ( explosion_step > explosion_period ) {
+                explosion_step = 0;
             }
-            
-            ctx.translate(centerX, centerY);
 
-            var ourScale = max_scale * step / explosion_period;
 
-            ctx.scale(ourScale, ourScale);
+            var ourScale = max_scale * explosion_step / explosion_period;
+            ctx.scale( ourScale, ourScale );
+
             explosionObj.draw();
 
             ctx.restore();
             window.requestAnimationFrame(animate);
         };
 
-        document.getElementById("start").onclick = function(){
+        document.getElementById( "start" ).onclick = function() {
             animate();
         }
     }());

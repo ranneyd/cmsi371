@@ -14,80 +14,90 @@
 <script type="text/javascript" src="computer.js"></script>
 <script type="text/javascript">
     ( function () {
-        var computerX = 500,
-            computerY = 300,
-            kidX = 200,
-            kidY = 200,
+        var ctx = document.getElementById("main").getContext( "2d" ),
+            computerX  = 500,
+            computerY  = 300,
+            kidX       = 200,
+            kidY       = 200,
             explosionX = 200,
             explosionY = 200,
 
             // computer
-            flicker_rate = 4,
+            flicker_rate  = 4,
             computer_step = 0,
-            textColor = "black",
-            backColor = "black",
+            textColor     = "black",
+            backColor     = "black",
 
             // kid
             maxstep_kid = 200,
-            kid_step = 0,
+            kid_step    = 0,
 
             // explosion
             explosion_period = 15,
-            explosion_step = 0,
-            max_scale = 6,
+            explosion_step   = 0,
+            max_scale        = 6;
 
-
-            ctx = document.getElementById("main").getContext( "2d" );
-
+        // Init computer
         ctx.save();
-        ctx.translate(computerX, computerY);
-        var computerObj = computer("main");
+        ctx.translate( computerX, computerY );
+        var computerObj = computer( "main" );
         ctx.restore();
 
-
+        // Init explosion
         ctx.save();
-        ctx.translate(explosionX, explosionY);
-        ctx.scale(0,0);
-        var explosionObj = explosion("main");
+        ctx.translate( explosionX, explosionY );
+        // explosion starts off invisible
+        ctx.scale( 0, 0 );
+        var explosionObj = explosion( "main" );
         ctx.restore();
 
+        // Init kid
         ctx.save();
-        ctx.translate(kidX, kidY);
-        var kidObj = kid("main");
+        ctx.translate( kidX, kidY );
+        var kidObj = kid( "main" );
         ctx.restore();
 
-        var animate = function(){
+        var animate = function() {
             ctx.clearRect( 0, 0, 800, 600 ); // clear canvas
-
 
             // computer
             ctx.save();
-
-            ctx.translate(computerX, computerY);
-                
+            ctx.translate( computerX, computerY );
+            
             computer_step++;
 
-            if (computer_step > flicker_rate) {
-                var textPicker = Math.floor(Math.random() * 3);
+            // Pick new colors
+            if ( computer_step > flicker_rate ) {
+                // We're either going to pump the red, green or blue
+                var textPicker = Math.floor( Math.random() * 3 );
 
                 var randomBrightRGB = function () {
                     var min = 150;
                     return 0 | Math.random() * (255 - min) + min;
                 };
 
-                if( textPicker == 0){
-                    textColor = "rgb(255, 0, 0)";
-                    backColor = "rgb(0, "+ randomBrightRGB() + ", "+ randomBrightRGB() + ")";
-                } else if( textPicker == 1){
-                    textColor = "rgb(0, 255, 0)";
-                    backColor = "rgb("+ randomBrightRGB() + ", 0, "+ randomBrightRGB() + ")";
+                if ( textPicker === 0 ) {
+                    textColor = "rgb( 255, 0, 0 )";
+                    backColor = "rgb(0," 
+                                     + randomBrightRGB() + ","
+                                     + randomBrightRGB() + ")";
+                } else if ( textPicker === 1 ) {
+                    textColor = "rgb( 0, 255, 0 )";
+                    backColor = "rgb(" + randomBrightRGB() + ","
+                                     + "0,"
+                                     + randomBrightRGB() + ")";
                 } else {
-                    textColor = "rgb(0, 0, 255)";
-                    backColor = "rgb("+ randomBrightRGB() + ", "+ randomBrightRGB() + ", 0)";
+                    textColor = "rgb( 0, 0, 255 )";
+                    backColor = "rgb(" + randomBrightRGB() + ","
+                                     + randomBrightRGB() + ","
+                                     + "0)";
                 }
 
                 computer_step = 0;
-            } else if (computer_step > flicker_rate / 2){
+            }
+
+            // Second half of period is all black
+            if ( computer_step > flicker_rate / 2 ) {
                 textColor = "black";
                 backColor = "black";
             }
@@ -95,7 +105,7 @@
             computerObj.draw({
                 textColor : textColor,
                 backColor : backColor,
-                compColor : "rgb(100, 100, 100)"
+                compColor : "rgb( 100, 100, 100 )"
             });
 
             ctx.restore();
@@ -103,25 +113,25 @@
             // kid
 
             ctx.save();
-                
+            ctx.translate( kidX, kidY );
+
             kid_step++;
 
-            if (kid_step > maxstep_kid) {
+            if ( kid_step > maxstep_kid ) {
                 kid_step = 0;
             }
             
-            ctx.translate(kidX, kidY);
 
             var weirdness = kid_step / maxstep_kid;
 
-            ctx.rotate(2 * Math.PI * weirdness);
+            ctx.rotate( 2 * Math.PI * weirdness );
 
             kidObj.draw({
-                width: 200 + 200 * weirdness,
-                mouthYOffset: 50 * weirdness,
-                eyeSpreadDelta: 50 * weirdness,
-                eyeYOffset: -50 * weirdness,
-                eyeRedness: weirdness * 100
+                width           : 200 + 200 * weirdness,
+                mouthYOffset    : 50 * weirdness,
+                eyeSpreadDelta  : 50 * weirdness,
+                eyeYOffset      : -50 * weirdness,
+                eyeRedness      : weirdness * 100
             });
 
             ctx.restore();
@@ -129,30 +139,28 @@
             // explosion
 
             // explosion occurs at the end of the kid's transformation
-            if ( kid_step >= maxstep_kid - explosion_period){
+            if ( kid_step >= maxstep_kid - explosion_period ) {
                 ctx.save();
+                ctx.translate( explosionX, explosionY );
 
                 explosion_step++;
 
-                if (explosion_step > explosion_period) {
+                if ( explosion_step > explosion_period ) {
                     explosion_step = 0;
                 }
 
-                ctx.translate(explosionX, explosionY);
 
                 var ourScale = max_scale * explosion_step / explosion_period;
+                ctx.scale( ourScale, ourScale );
 
-                ctx.scale(ourScale, ourScale);
                 explosionObj.draw();
 
                 ctx.restore();
             }
-            
-
             window.requestAnimationFrame(animate);
         };
 
-        document.getElementById("start").onclick = function(){
+        document.getElementById( "start" ).onclick = function() {
             animate();
         }
     }());

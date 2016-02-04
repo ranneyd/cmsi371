@@ -11,49 +11,49 @@
 <script type="text/javascript" src="kid.js"></script>
 <script type="text/javascript">
     ( function () {
-        var maxstep = 200,
-            step = 0,
-            centerX = 300,
-            centerY = 300,
-            ctx = document.getElementById("main").getContext( "2d" );
+        var ctx = document.getElementById("main").getContext( "2d" ),
+            maxstep_kid = 200,
+            kid_step = 0,
+            kidX = 300,
+            kidY = 300;
 
         ctx.save();
-        ctx.translate(centerX, centerY);
+        ctx.translate( kidX, kidY );
 
-        var kidObj = kid("main");
+        var kidObj = kid( "main" );
 
         ctx.restore();
 
-        var animate = function(){
+        var animate = function() {
             ctx.clearRect( 0, 0, 600, 600 ); // clear canvas
 
             ctx.save();
-                
-            step++;
+            ctx.translate( kidX, kidY );
 
-            if (step > maxstep) {
-                step = 0;
+            kid_step++;
+
+            if ( kid_step > maxstep_kid ) {
+                kid_step = 0;
             }
             
-            ctx.translate(centerX, centerY);
 
-            var weirdness = step / maxstep;
+            var weirdness = kid_step / maxstep_kid;
 
-            ctx.rotate(2 * Math.PI * weirdness);
+            ctx.rotate( 2 * Math.PI * weirdness );
 
             kidObj.draw({
-                width: 200 + 200 * weirdness,
-                mouthYOffset: 50 * weirdness,
-                eyeSpreadDelta: 50 * weirdness,
-                eyeYOffset: -50 * weirdness,
-                eyeRedness: weirdness * 100
+                width           : 200 + 200 * weirdness,
+                mouthYOffset    : 50 * weirdness,
+                eyeSpreadDelta  : 50 * weirdness,
+                eyeYOffset      : -50 * weirdness,
+                eyeRedness      : weirdness * 100
             });
 
             ctx.restore();
             window.requestAnimationFrame(animate);
         };
 
-        document.getElementById("start").onclick = function(){
+        document.getElementById( "start" ).onclick = function() {
             animate();
         }
     }());
