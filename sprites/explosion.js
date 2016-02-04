@@ -149,23 +149,22 @@ var explosion = function ( id, initial_props ) {
                 ctx.fill();
             };
             
-            drawExplosion(ctx, w, h, outerColor);
-            drawExplosion(ctx, w * middleRatio, h * middleRatio, middleColor);
-            drawExplosion(ctx, w * innerRatio, h * innerRatio, innerColor);
+            drawExplosion( ctx, w, h, outerColor );
+            drawExplosion( ctx, w * middleRatio, h * middleRatio, middleColor );
+            drawExplosion( ctx, w * innerRatio, h * innerRatio, innerColor );
 
             if ( insideColor ) {
                 ctx.beginPath();
 
-                ctx.arc(0, 0, w * insideRatio, h * insideRatio, 0, 2 * Math.PI);
+                ctx.arc( 0, 0, w * insideRatio, h * insideRatio, 0, 2 * Math.PI );
                 ctx.fillStyle = insideColor;
                 ctx.fill();
             }
 
-            
             ctx.restore();
         }
     };
 
-    explosionObject.draw(initial_props);
+    explosionObject.draw( initial_props );
     return explosionObject;
 };

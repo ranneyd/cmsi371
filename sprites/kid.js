@@ -15,7 +15,7 @@
 
 var kid = function ( id, initial_props ) {
 
-    var ellipse = function(ctx, x, y, w, h, half) {
+    var ellipse = function( ctx, x, y, w, h, half ) {
         //http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
         var kappa = .5522848,
             ox = (w / 2) * kappa, // control point offset horizontal
@@ -26,20 +26,20 @@ var kid = function ( id, initial_props ) {
             ym = y + h / 2;       // y-middle
 
         ctx.beginPath();
-        ctx.moveTo(x, ym);
-        ctx.bezierCurveTo(x, ym - oy, xm - ox, y, xm, y);
-        ctx.bezierCurveTo(xm + ox, y, xe, ym - oy, xe, ym);
-        if (!half){
-            ctx.bezierCurveTo(xe, ym + oy, xm + ox, ye, xm, ye);
-            ctx.bezierCurveTo(xm - ox, ye, x, ym + oy, x, ym);
+        ctx.moveTo( x, ym );
+        ctx.bezierCurveTo( x, ym - oy, xm - ox, y, xm, y );
+        ctx.bezierCurveTo( xm + ox, y, xe, ym - oy, xe, ym );
+        if ( !half ) {
+            ctx.bezierCurveTo( xe, ym + oy, xm + ox, ye, xm, ye );
+            ctx.bezierCurveTo( xm - ox, ye, x, ym + oy, x, ym );
         }
 
         ctx.fill();
     };
     var kidObject = {
-        "canvas": document.getElementById(id),
+        "canvas": document.getElementById( id ),
 
-        draw: function (props) {
+        draw: function ( props ) {
             // So javascript doesn't freak out if no props are passed
             props = props || {};
 
@@ -58,72 +58,78 @@ var kid = function ( id, initial_props ) {
                 eyeSpreadDelta = props.eyeSpreadDelta || 0,
                 eyeYOffset     = props.eyeYOffset     || 0;
 
-
-            ctx.translate(- w / 2 , - h / 2);
+            // I want to center around the origin, but I want to work as if the origin is in the
+            // upper left
+            ctx.translate( -w / 2 , -h / 2 );
 
 
             // head
             ctx.fillStyle = hairColor;
-            
-            
-            ellipse( ctx, 0, 0, w, h);
+            ellipse( ctx, 0, 0, w, h );
 
             // eyebrows
-
             var browMargin = w * .05 - eyeSpreadDelta / 2,
                 browY = h * .4 + eyeYOffset,
                 browW = w * .35,
                 browH = h*.02;
 
-
-
             ctx.fillStyle = skinColor;
 
+            // left
             ctx.fillRect(browMargin, browY, browW, browH);
-
+            // right
             ctx.fillRect(w - browMargin - browW, browY, browW, browH);
 
             // Hair
-
-            ellipse ( ctx, 0, 0, w, h*.75, true);
+            ellipse ( ctx, 0, 0, w, h*.75, true );
 
             ctx.fill();
 
+            // eyes 
 
-            // eyes
-            ctx.fillStyle = "rgb(255, " + (0 | 255 - 153 * eyeRedness / 100) + ", " + (0 | 255 - 153 * eyeRedness / 100) +")";
+            // Eyes get redder based on an eyeRedness percentage. The minimum amount of redness is
+            // rgb(255, 153, 153). We start at rgb(255, 255, 255) (white) and work our way to red
+            // from there
+
+            var rednessRGBValue = 0 | 255 - 153 * eyeRedness / 100
+            ctx.fillStyle = "rgb( 255, " + rednessRGBValue + ", " + rednessRGBValue + ")";
 
             var eyeW = w * .35,
                 eyeH = eyeW,
                 eyeY = h * .43 + eyeYOffset,
                 eyeMargin = w * .05 - eyeSpreadDelta / 2;
 
+            // left
             ellipse( ctx, eyeMargin, eyeY, eyeW, eyeH );
-
+            // right
             ellipse( ctx, w - eyeMargin - eyeW, eyeY, eyeW, eyeH );
 
+            // Irises
             ctx.fillStyle = eyeColor;
 
+            // left
             ellipse( ctx, 
                      eyeMargin + eyeW/4,
                      eyeY + eyeH/4,
                      eyeW/2, 
                      eyeH/2);
-
+            // right
             ellipse( ctx, 
                      w - eyeMargin - eyeW*0.75,
                      eyeY + eyeH/4,
                      eyeW/2,
                      eyeH/2 );
 
+            // pupils
             ctx.fillStyle = "rgb( 0, 0, 0 )";
 
+            // left
             ellipse( ctx, 
                      eyeMargin + eyeW/3,
                      eyeY + eyeH/3,
                      eyeW/3, 
                      eyeH/3);
-
+            // right
             ellipse( ctx, 
                      w - eyeMargin - eyeW*.66,
                      eyeY + eyeH/3,
@@ -137,11 +143,11 @@ var kid = function ( id, initial_props ) {
                 mouthX = w / 2 + mouthXOffset,
                 mouthY = h * .75 + mouthYOffset;
 
-            ctx.moveTo(mouthX, mouthY);
+            ctx.moveTo( mouthX, mouthY );
 
             ctx.beginPath();
 
-            ctx.arc(mouthX, mouthY, mouthR,  Math.PI, 0, true);
+            ctx.arc( mouthX, mouthY, mouthR,  Math.PI, 0, true );
 
             ctx.closePath();
 
@@ -153,6 +159,6 @@ var kid = function ( id, initial_props ) {
         }
     };
 
-    kidObject.draw(initial_props);
+    kidObject.draw( initial_props );
     return kidObject;
 };
