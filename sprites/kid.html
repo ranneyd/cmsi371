@@ -11,29 +11,45 @@
 <script type="text/javascript" src="kid.js"></script>
 <script type="text/javascript">
     ( function () {
-        var MAXSTEP = 150;
-        var step = 0;
+        var maxstep = 200,
+            step = 0,
+            centerX = 300,
+            centerY = 300,
+            ctx = document.getElementById("main").getContext( "2d" );
 
-        var kidObj = kid("main", {
-            MAXSTEP: MAXSTEP,
-            x: 300,
-            y: 200
-        });
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        var kidObj = kid("main");
+
+        ctx.restore();
 
         var animate = function(){
-            document.getElementById("main")
-                .getContext("2d")
-                .clearRect( 0, 0, 600, 600 ); // clear canvas
+            ctx.clearRect( 0, 0, 600, 600 ); // clear canvas
+
+            ctx.save();
                 
             step++;
 
-            if (step > MAXSTEP) {
+            if (step > maxstep) {
                 step = 0;
             }
+            
+            ctx.translate(centerX, centerY);
 
-            kidObj.draw(step);
+            var weirdness = step / maxstep;
 
+            ctx.rotate(2 * Math.PI * weirdness);
 
+            kidObj.draw({
+                width: 200 + 200 * weirdness,
+                mouthYOffset: 50 * weirdness,
+                eyeSpreadDelta: 50 * weirdness,
+                eyeYOffset: -50 * weirdness,
+                eyeRedness: weirdness * 100
+            });
+
+            ctx.restore();
             window.requestAnimationFrame(animate);
         };
 

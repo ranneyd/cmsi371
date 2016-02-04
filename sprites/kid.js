@@ -1,12 +1,16 @@
 "use strict";
 
 /*
-    prop        | default
-    ------------------------
-    hairColor  | "rgb( 139, 69, 19 )"
-    skinColor  | "rgb( 255, 255, 0 )"
-    eyeColor   | "rgb( 0, 255, 255 )"
-    eyeRedness | 0  // percentage
+    prop           | default
+    ---------------------------------------
+    hairColor      | "rgb( 139, 69, 19 )"
+    skinColor      | "rgb( 255, 255, 0 )"
+    eyeColor       | "rgb( 0, 255, 255 )"
+    eyeRedness     | 0  // percentage
+    mouthXOffset   | 0  // pixels
+    mouthYOffset   | 0  // pixels
+    eyeSpreadDelta | 0  // pixels, representing increased distance between eyes
+    eyeYOffset     | 0  // pixels
 */
 
 var kid = function ( id, initial_props ) {
@@ -43,42 +47,37 @@ var kid = function ( id, initial_props ) {
 
             ctx.save();
 
-            // This will get weirder as time progresses
-            var w = 200,
-                h = 260,
-                hairColor  = props.hairColor  || "rgb( 139, 69, 19 )",
-                skinColor  = props.skinColor  || "rgb( 255, 255, 0 )",
-                eyeColor   = props.eyeColor   || "rgb( 0, 255, 255 )",
-                eyeRedness = props.eyeRedness || 0;
+            var w              = props.width          || 200,
+                h              = props.height         || 260,
+                skinColor      = props.skinColor      || "rgb( 139, 69, 19 )",
+                hairColor      = props.hairColor      || "rgb( 255, 255, 0 )",
+                eyeColor       = props.eyeColor       || "rgb( 0, 255, 255 )",
+                eyeRedness     = props.eyeRedness     || 0,
+                mouthXOffset   = props.mouthXOffset   || 0,
+                mouthYOffset   = props.mouthYOffset   || 0,
+                eyeSpreadDelta = props.eyeSpreadDelta || 0,
+                eyeYOffset     = props.eyeYOffset     || 0;
+
 
             ctx.translate(- w / 2 , - h / 2);
 
 
             // head
-            // Let's make this switch after a while
-            if(weirdness > .8 && 0 | step / 5 % 2){
-                ctx.fillStyle = this.hair;
-            } else {
-                ctx.fillStyle = this.skin;
-            }
+            ctx.fillStyle = hairColor;
+            
             
             ellipse( ctx, 0, 0, w, h);
 
             // eyebrows
 
-            var browMargin = w * .05,
-                browY = h * .4 - h * .2 * weirdness,
+            var browMargin = w * .05 - eyeSpreadDelta / 2,
+                browY = h * .4 + eyeYOffset,
                 browW = w * .35,
                 browH = h*.02;
 
 
 
-            // Let's make this switch after a while
-            if(weirdness > .8 && 0 | step / 10 % 2){
-                ctx.fillStyle = this.skin;
-            } else {
-                ctx.fillStyle = this.hair;
-            }
+            ctx.fillStyle = skinColor;
 
             ctx.fillRect(browMargin, browY, browW, browH);
 
@@ -92,18 +91,18 @@ var kid = function ( id, initial_props ) {
 
 
             // eyes
-            ctx.fillStyle = "rgb(255, " + (0 | 255 - 153 * weirdness) + ", " + (0 | 255 - 153 * weirdness) +")";
+            ctx.fillStyle = "rgb(255, " + (0 | 255 - 153 * eyeRedness / 100) + ", " + (0 | 255 - 153 * eyeRedness / 100) +")";
 
-            var eyeW = w * .35 + w * .2 * weirdness,
+            var eyeW = w * .35,
                 eyeH = eyeW,
-                eyeY = h * .43 - h * .2 * weirdness,
-                eyeMargin = w * .05 - w * .2 * weirdness;
+                eyeY = h * .43 + eyeYOffset,
+                eyeMargin = w * .05 - eyeSpreadDelta / 2;
 
             ellipse( ctx, eyeMargin, eyeY, eyeW, eyeH );
 
             ellipse( ctx, w - eyeMargin - eyeW, eyeY, eyeW, eyeH );
 
-            ctx.fillStyle = this.eyeColor;
+            ctx.fillStyle = eyeColor;
 
             ellipse( ctx, 
                      eyeMargin + eyeW/4,
@@ -133,11 +132,10 @@ var kid = function ( id, initial_props ) {
 
             // mouth
 
-
             var mouthW = w * .4,
                 mouthR = mouthW / 2,
-                mouthX = w / 2,
-                mouthY = h * .75 + h* .2 * weirdness;
+                mouthX = w / 2 + mouthXOffset,
+                mouthY = h * .75 + mouthYOffset;
 
             ctx.moveTo(mouthX, mouthY);
 

@@ -14,57 +14,140 @@
 <script type="text/javascript" src="computer.js"></script>
 <script type="text/javascript">
     ( function () {
-        var MAXSTEP_kid = 250;
-        var MAXSTEP_explosion = 15;
-        var MAXSTEP_computer = 5;
-        var step_kid = 0;
-        var step_computer = 0;
+        var computerX = 500,
+            computerY = 300,
+            kidX = 200,
+            kidY = 200,
+            explosionX = 200,
+            explosionY = 200,
 
-        var kidObj = kid("main", {
-            MAXSTEP: MAXSTEP_kid,
-            x: 300,
-            y: 200
-        });
+            // computer
+            flicker_rate = 4,
+            computer_step = 0,
+            textColor = "black",
+            backColor = "black",
 
-        var explosionObj = explosion("main", {
-            MAXSTEP: MAXSTEP_explosion,
-            x: 300,
-            y: 200,
-            width: 1500,
-            height:1500
-        });
+            // kid
+            maxstep_kid = 200,
+            kid_step = 0,
 
-        var computerObj = computer("main", {
-            MAXSTEP: MAXSTEP_computer,
-            x: 500,
-            y: 200,
-        });
+            // explosion
+            explosion_period = 15,
+            explosion_step = 0,
+            max_scale = 6,
+
+
+            ctx = document.getElementById("main").getContext( "2d" );
+
+        ctx.save();
+        ctx.translate(computerX, computerY);
+        var computerObj = computer("main");
+        ctx.restore();
+
+
+        ctx.save();
+        ctx.translate(explosionX, explosionY);
+        ctx.scale(0,0);
+        var explosionObj = explosion("main");
+        ctx.restore();
+
+        ctx.save();
+        ctx.translate(kidX, kidY);
+        var kidObj = kid("main");
+        ctx.restore();
 
         var animate = function(){
-            document.getElementById("main")
-                .getContext("2d")
-                .clearRect( 0, 0, 800, 600 ); // clear canvas
+            ctx.clearRect( 0, 0, 800, 600 ); // clear canvas
 
-            step_kid++;
 
-            if (step_kid > MAXSTEP_kid) {
-                step_kid = 0;
+            // computer
+            ctx.save();
+
+            ctx.translate(computerX, computerY);
+                
+            computer_step++;
+
+            if (computer_step > flicker_rate) {
+                var textPicker = Math.floor(Math.random() * 3);
+
+                var randomBrightRGB = function () {
+                    var min = 150;
+                    return 0 | Math.random() * (255 - min) + min;
+                };
+
+                if( textPicker == 0){
+                    textColor = "rgb(255, 0, 0)";
+                    backColor = "rgb(0, "+ randomBrightRGB() + ", "+ randomBrightRGB() + ")";
+                } else if( textPicker == 1){
+                    textColor = "rgb(0, 255, 0)";
+                    backColor = "rgb("+ randomBrightRGB() + ", 0, "+ randomBrightRGB() + ")";
+                } else {
+                    textColor = "rgb(0, 0, 255)";
+                    backColor = "rgb("+ randomBrightRGB() + ", "+ randomBrightRGB() + ", 0)";
+                }
+
+                computer_step = 0;
+            } else if (computer_step > flicker_rate / 2){
+                textColor = "black";
+                backColor = "black";
             }
 
+            computerObj.draw({
+                textColor : textColor,
+                backColor : backColor,
+                compColor : "rgb(100, 100, 100)"
+            });
 
-            step_computer++;
+            ctx.restore();
 
-            if (step_computer > MAXSTEP_computer) {
-                step_computer = 0;
+            // kid
+
+            ctx.save();
+                
+            kid_step++;
+
+            if (kid_step > maxstep_kid) {
+                kid_step = 0;
             }
+            
+            ctx.translate(kidX, kidY);
 
-            computerObj.draw(step_computer);
+            var weirdness = kid_step / maxstep_kid;
 
-            kidObj.draw(step_kid);
+            ctx.rotate(2 * Math.PI * weirdness);
 
-            if (step_kid >= MAXSTEP_kid - MAXSTEP_explosion){
-                explosionObj.draw(step_kid - (MAXSTEP_kid - MAXSTEP_explosion));
+            kidObj.draw({
+                width: 200 + 200 * weirdness,
+                mouthYOffset: 50 * weirdness,
+                eyeSpreadDelta: 50 * weirdness,
+                eyeYOffset: -50 * weirdness,
+                eyeRedness: weirdness * 100
+            });
+
+            ctx.restore();
+
+            // explosion
+
+            // explosion occurs at the end of the kid's transformation
+            if ( kid_step >= maxstep_kid - explosion_period){
+                ctx.save();
+
+                explosion_step++;
+
+                if (explosion_step > explosion_period) {
+                    explosion_step = 0;
+                }
+
+                ctx.translate(explosionX, explosionY);
+
+                var ourScale = max_scale * explosion_step / explosion_period;
+
+                ctx.scale(ourScale, ourScale);
+                explosionObj.draw();
+
+                ctx.restore();
             }
+            
 
             window.requestAnimationFrame(animate);
         };
