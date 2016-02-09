@@ -19,6 +19,7 @@
             renderingContext.arc(0, 0, 50, 0, Math.PI * 2);
             renderingContext.stroke();
         },
+        computerDraw = computer( "canvas" ).draw,
 
         // Then, we have "easing functions" that determine how
         // intermediate frames are computed.
@@ -27,7 +28,7 @@
         // has a drawing function and an array of keyframes.
         sprites = [
             {
-                draw: square,
+                draw: computerDraw,
                 keyframes: [
                     {
                         frame: 0,

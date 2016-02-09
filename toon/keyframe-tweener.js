@@ -24,11 +24,14 @@
     // case a property is not present:
     //
     // - frame: the global animation frame number in which this keyframe
-    //          it to appear
+    //          is to appear
     // - ease: the easing function to use (default is KeyframeTweener.linear)
     // - tx, ty: the location of the sprite (default is 0, 0)
     // - sx, sy: the scale factor of the sprite (default is 1, 1)
     // - rotate: the rotation angle of the sprite (default is 0)
+    //
+    // In addition, any properties added to this object other than the ones
+    // listed will be passed to the sprite to animate it.
     var initializeAnimation = function (settings) {
         // We need to keep track of the current frame.
         var currentFrame = 0,
@@ -109,7 +112,7 @@
                             );
 
                             // Draw the sprite.
-                            sprites[i].draw(renderingContext);
+                            sprites[i].draw();
 
                             // Clean up.
                             renderingContext.restore();
