@@ -111,8 +111,27 @@
                                 ease(currentTweenFrame, rotateStart, rotateDistance, duration)
                             );
 
+                            // arbitrary props
+                            var props = {};
+
+                            // Get every property in the props object
+                            for( var propKey in startKeyframe.props ) {
+
+                                var startKeyframeProp = startKeyframe.props[propKey];
+                                // We can only tween numeric values
+                                if(isNaN(startKeyframeProp)){
+                                    props[propKey] = startKeyframeProp;
+                                } else {
+                                    props[propKey] = ease(currentTweenFrame,
+                                                          startKeyframeProp,
+                                                          endKeyframe.props[propKey] || 0,
+                                                          duration);
+                                }
+
+                            }
+
                             // Draw the sprite.
-                            sprites[i].draw(renderingContext, endKeyframe.props);
+                            sprites[i].draw(renderingContext, props);
 
                             // Clean up.
                             renderingContext.restore();

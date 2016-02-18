@@ -25,31 +25,33 @@
 
         // Now, to actually define the animated sprites.  Each sprite
         // has a drawing function and an array of keyframes.
+        
+        duration = 500,
+        compPos = { x: 500, y: 400 };
         sprites = [
             {
                 draw: computer,
                 keyframes: [
                     {
                         frame: 0,
-                        tx: 20,
-                        ty: 20,
+                        tx: compPos.x,
+                        ty: compPos.y,
+                        props: {
+                            textColor: "rgb(255, 0, 0)",
+                            backColor: "rgb(0, 255, 255)"
+                        },
                         ease: KeyframeTweener.linear
                     },
-
                     {
-                        frame: 30,
-                        tx: 100,
-                        ty: 50,
-                        ease: KeyframeTweener.quadEaseInOut
+                        frame: duration,
+                        tx: compPos.x,
+                        ty: compPos.y,
+                        // props: {
+                        //     textColor: "rgb(255, 0, 0)",
+                        //     backColor: "rgb(0, 255, 255)"
+                        // },
+                        ease: KeyframeTweener.linear
                     },
-
-                    // The last keyframe does not need an easing function.
-                    {
-                        frame: 80,
-                        tx: 80,
-                        ty: 500,
-                        rotate: 60 // Keyframe.rotate uses degrees.
-                    }
                 ]
             },
 
