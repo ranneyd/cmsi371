@@ -13,9 +13,9 @@
     eyeYOffset     | 0  // pixels
 */
 
-var kid = function ( id, initial_props ) {
+var kid = function (ctx, props) {
 
-    var ellipse = function( ctx, x, y, w, h, half ) {
+    var ellipse = function( x, y, w, h, half ) {
         //http://stackoverflow.com/questions/2172798/how-to-draw-an-oval-in-html5-canvas
         var kappa = .5522848,
             ox = (w / 2) * kappa, // control point offset horizontal
@@ -36,129 +36,115 @@ var kid = function ( id, initial_props ) {
 
         ctx.fill();
     };
-    var kidObject = {
-        "canvas": document.getElementById( id ),
 
-        draw: function ( props ) {
-            // So javascript doesn't freak out if no props are passed
-            props = props || {};
+    // So javascript doesn't freak out if no props are passed
+    props = props || {};
 
-            var ctx = this.canvas.getContext( "2d" );
+    ctx.save();
 
-            ctx.save();
+    var w              = props.width          || 200,
+        h              = props.height         || 260,
+        skinColor      = props.skinColor      || "rgb( 139, 69, 19 )",
+        hairColor      = props.hairColor      || "rgb( 255, 255, 0 )",
+        eyeColor       = props.eyeColor       || "rgb( 0, 255, 255 )",
+        eyeRedness     = props.eyeRedness     || 0,
+        mouthXOffset   = props.mouthXOffset   || 0,
+        mouthYOffset   = props.mouthYOffset   || 0,
+        eyeSpreadDelta = props.eyeSpreadDelta || 0,
+        eyeYOffset     = props.eyeYOffset     || 0;
 
-            var w              = props.width          || 200,
-                h              = props.height         || 260,
-                skinColor      = props.skinColor      || "rgb( 139, 69, 19 )",
-                hairColor      = props.hairColor      || "rgb( 255, 255, 0 )",
-                eyeColor       = props.eyeColor       || "rgb( 0, 255, 255 )",
-                eyeRedness     = props.eyeRedness     || 0,
-                mouthXOffset   = props.mouthXOffset   || 0,
-                mouthYOffset   = props.mouthYOffset   || 0,
-                eyeSpreadDelta = props.eyeSpreadDelta || 0,
-                eyeYOffset     = props.eyeYOffset     || 0;
-
-            // I want to center around the origin, but I want to work as if the origin is in the
-            // upper left
-            ctx.translate( -w / 2 , -h / 2 );
+    // I want to center around the origin, but I want to work as if the origin is in the
+    // upper left
+    ctx.translate( -w / 2 , -h / 2 );
 
 
-            // head
-            ctx.fillStyle = hairColor;
-            ellipse( ctx, 0, 0, w, h );
+    // head
+    ctx.fillStyle = hairColor;
+    ellipse( 0, 0, w, h );
 
-            // eyebrows
-            var browMargin = w * .05 - eyeSpreadDelta / 2,
-                browY = h * .4 + eyeYOffset,
-                browW = w * .35,
-                browH = h*.02;
+    // eyebrows
+    var browMargin = w * .05 - eyeSpreadDelta / 2,
+        browY = h * .4 + eyeYOffset,
+        browW = w * .35,
+        browH = h*.02;
 
-            ctx.fillStyle = skinColor;
+    ctx.fillStyle = skinColor;
 
-            // left
-            ctx.fillRect(browMargin, browY, browW, browH);
-            // right
-            ctx.fillRect(w - browMargin - browW, browY, browW, browH);
+    // left
+    ctx.fillRect(browMargin, browY, browW, browH);
+    // right
+    ctx.fillRect(w - browMargin - browW, browY, browW, browH);
 
-            // Hair
-            ellipse ( ctx, 0, 0, w, h * .75, true );
+    // Hair
+    ellipse ( 0, 0, w, h * .75, true );
 
-            ctx.fill();
+    ctx.fill();
 
-            // eyes 
+    // eyes 
 
-            // Eyes get redder based on an eyeRedness percentage. The minimum amount of redness is
-            // rgb(255, 153, 153). We start at rgb(255, 255, 255) (white) and work our way to red
-            // from there
+    // Eyes get redder based on an eyeRedness percentage. The minimum amount of redness is
+    // rgb(255, 153, 153). We start at rgb(255, 255, 255) (white) and work our way to red
+    // from there
 
-            var rednessRGBValue = 0 | 255 - 153 * eyeRedness / 100
-            ctx.fillStyle = "rgb( 255, " + rednessRGBValue + ", " + rednessRGBValue + ")";
+    var rednessRGBValue = 0 | 255 - 153 * eyeRedness / 100
+    ctx.fillStyle = "rgb( 255, " + rednessRGBValue + ", " + rednessRGBValue + ")";
 
-            var eyeW = w * .35,
-                eyeH = eyeW,
-                eyeY = h * .43 + eyeYOffset,
-                eyeMargin = w * .05 - eyeSpreadDelta / 2;
+    var eyeW = w * .35,
+        eyeH = eyeW,
+        eyeY = h * .43 + eyeYOffset,
+        eyeMargin = w * .05 - eyeSpreadDelta / 2;
 
-            // left
-            ellipse( ctx, eyeMargin, eyeY, eyeW, eyeH );
-            // right
-            ellipse( ctx, w - eyeMargin - eyeW, eyeY, eyeW, eyeH );
+    // left
+    ellipse( eyeMargin, eyeY, eyeW, eyeH );
+    // right
+    ellipse( w - eyeMargin - eyeW, eyeY, eyeW, eyeH );
 
-            // Irises
-            ctx.fillStyle = eyeColor;
+    // Irises
+    ctx.fillStyle = eyeColor;
 
-            // left
-            ellipse( ctx, 
-                     eyeMargin + eyeW/4,
-                     eyeY + eyeH/4,
-                     eyeW/2, 
-                     eyeH/2);
-            // right
-            ellipse( ctx, 
-                     w - eyeMargin - eyeW*0.75,
-                     eyeY + eyeH/4,
-                     eyeW/2,
-                     eyeH/2 );
+    // left
+    ellipse( eyeMargin + eyeW/4,
+             eyeY + eyeH/4,
+             eyeW/2, 
+             eyeH/2);
+    // right
+    ellipse( w - eyeMargin - eyeW*0.75,
+             eyeY + eyeH/4,
+             eyeW/2,
+             eyeH/2 );
 
-            // pupils
-            ctx.fillStyle = "rgb( 0, 0, 0 )";
+    // pupils
+    ctx.fillStyle = "rgb( 0, 0, 0 )";
 
-            // left
-            ellipse( ctx, 
-                     eyeMargin + eyeW/3,
-                     eyeY + eyeH/3,
-                     eyeW/3, 
-                     eyeH/3);
-            // right
-            ellipse( ctx, 
-                     w - eyeMargin - eyeW*.66,
-                     eyeY + eyeH/3,
-                     eyeW/3,
-                     eyeH/3 );
+    // left
+    ellipse( eyeMargin + eyeW/3,
+             eyeY + eyeH/3,
+             eyeW/3, 
+             eyeH/3);
+    // right
+    ellipse( w - eyeMargin - eyeW*.66,
+             eyeY + eyeH/3,
+             eyeW/3,
+             eyeH/3 );
 
-            // mouth
+    // mouth
 
-            var mouthW = w * .4,
-                mouthR = mouthW / 2,
-                mouthX = w / 2 + mouthXOffset,
-                mouthY = h * .75 + mouthYOffset;
+    var mouthW = w * .4,
+        mouthR = mouthW / 2,
+        mouthX = w / 2 + mouthXOffset,
+        mouthY = h * .75 + mouthYOffset;
 
-            ctx.moveTo( mouthX, mouthY );
+    ctx.moveTo( mouthX, mouthY );
 
-            ctx.beginPath();
+    ctx.beginPath();
 
-            ctx.arc( mouthX, mouthY, mouthR,  Math.PI, 0, true );
+    ctx.arc( mouthX, mouthY, mouthR,  Math.PI, 0, true );
 
-            ctx.closePath();
+    ctx.closePath();
 
-            ctx.fillStyle = "rgb( 255, 0, 0 )";
+    ctx.fillStyle = "rgb( 255, 0, 0 )";
 
-            ctx.fill();
+    ctx.fill();
 
-            ctx.restore();
-        }
-    };
-
-    kidObject.draw( initial_props );
-    return kidObject;
+    ctx.restore();
 };
