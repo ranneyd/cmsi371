@@ -112,7 +112,7 @@
                             );
 
                             // Draw the sprite.
-                            sprites[i].draw();
+                            sprites[i].draw(renderingContext, endKeyframe.props);
 
                             // Clean up.
                             renderingContext.restore();

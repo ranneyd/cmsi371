@@ -54,7 +54,7 @@
             },
 
             {
-                draw: circle,
+                draw: explosion,
                 keyframes: [
                     {
                         frame: 50,
