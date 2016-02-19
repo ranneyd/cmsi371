@@ -11,7 +11,7 @@
         // Now, to actually define the animated sprites.  Each sprite
         // has a drawing function and an array of keyframes.
         
-        duration = 100,
+        duration = 150,
         explosionTime = 15,
         compPos = { x: 600, y: 300 },
         kidPos = { x: 300, y: 200 },
@@ -47,13 +47,35 @@
                         frame: 0,
                         tx: kidPos.x,
                         ty: kidPos.y,
+                        props:{
+                            eyeRedness: 0,
+                            mouthYOffset: 0,
+                        },
                         ease: KeyframeTweener.linear
                     },
-
+                    {
+                        frame: 20,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 1,
+                        props:{
+                            eyeRedness: 0,
+                            mouthYOffset: 0,
+                            eyeSpreadDelta: 0,
+                        },
+                        ease: KeyframeTweener.linear
+                    },
                     {
                         frame: duration,
                         tx: kidPos.x,
                         ty: kidPos.y,
+                        sx: 2,
+                        rotate: 360,
+                        props:{
+                            eyeRedness: 100,
+                            mouthYOffset: 30,
+                            eyeSpreadDelta: 50,
+                        },
                         ease: KeyframeTweener.linear
                     },
                 ]
