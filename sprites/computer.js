@@ -3,9 +3,15 @@
 /*
     prop        | default
     ------------------------
-    textColor   | "black"
-    backColor   | "black"
-    compColor   | "rgb(100, 100, 100)"
+    textColorR  | 0
+    textColorG  | 0
+    textColorB  | 0
+    backColorR  | 0
+    backColorG  | 0
+    backColorB  | 0
+    compColorR  | 100
+    compColorG  | 100
+    compColorB  | 100
 */
 
 var computer = function ( ctx, props ) {
@@ -16,16 +22,24 @@ var computer = function ( ctx, props ) {
 
     var w         = 200,
         h         = 200,
-        textColor = props.textColor || "black",
-        backColor = props.backColor || "black",
-        compColor = props.compColor || "rgb(100, 100, 100)";
+        textColorR = props.textColorR || 0,
+        textColorG = props.textColorG || 0,
+        textColorB = props.textColorB || 0,
+        backColorR = props.backColorR || 0,
+        backColorG = props.backColorG || 0,
+        backColorB = props.backColorB || 0,
+        compColorR = props.compColorR || 100,
+        compColorG = props.compColorG || 100,
+        compColorB = props.compColorB || 100;
 
 
     // I want to center around the origin, but I want to work as if the origin is in the
     // upper left
     ctx.translate( -w / 2 , -h / 2 );
 
-    ctx.fillStyle  = compColor;
+    ctx.fillStyle  = 'rgb(' + compColorR + ', '
+                            + compColorG + ', '
+                            + compColorB + ')';
 
     var standWidth   = .3,
         standHeight  = .1,
@@ -51,7 +65,9 @@ var computer = function ( ctx, props ) {
     ctx.font = w / 8 + "px Arial";
     ctx.textAlign = "center";
 
-    ctx.fillStyle = backColor;
+    ctx.fillStyle = 'rgb(' + backColorR + ', '
+                           + backColorG + ', '
+                           + backColorB + ')';
 
     // The actual screen
     ctx.fillRect( w * bezel,
@@ -59,7 +75,9 @@ var computer = function ( ctx, props ) {
                   w * (1 - 2 * bezel),
                   h * (screenHeight - bezel - bezel) );
 
-    ctx.fillStyle = textColor;
+    ctx.fillStyle = 'rgb(' + textColorR + ', '
+                           + textColorG + ', '
+                           + textColorB + ')';
 
     ctx.fillText( "DANK MEMES", w / 2, h * screenHeight / 2 );
 
