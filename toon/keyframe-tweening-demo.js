@@ -5,19 +5,9 @@
 (function () {
     var canvas = document.getElementById("canvas"),
 
-        // First, a selection of "drawing functions" from which we
-        // can choose.  Their common trait: they all accept a single
-        // renderingContext argument.
-        square = function (renderingContext) {
-            renderingContext.fillStyle = "blue";
-            renderingContext.fillRect(-20, -20, 40, 40);
-        },
-
-        circle = function (renderingContext) {
-            renderingContext.strokeStyle = "red";
-            renderingContext.beginPath();
-            renderingContext.arc(0, 0, 50, 0, Math.PI * 2);
-            renderingContext.stroke();
+        linearStep = function (currentTime, start, distance, duration) {
+            var percentComplete = currentTime / duration;
+            return Math.floor(distance * percentComplete + start);
         },
 
         // Then, we have "easing functions" that determine how
@@ -31,28 +21,27 @@
         sprites = [
             {
                 draw: computer,
-                keyframes: [
-                    {
-                        frame: 0,
-                        tx: compPos.x,
-                        ty: compPos.y,
-                        props: {
-                            textColor: "rgb(255, 0, 0)",
-                            backColor: "rgb(0, 255, 255)"
-                        },
-                        ease: KeyframeTweener.linear
-                    },
-                    {
-                        frame: duration,
-                        tx: compPos.x,
-                        ty: compPos.y,
-                        // props: {
-                        //     textColor: "rgb(255, 0, 0)",
-                        //     backColor: "rgb(0, 255, 255)"
-                        // },
-                        ease: KeyframeTweener.linear
-                    },
-                ]
+                keyframes: ( function(){
+                    var keyframes = [],
+                        flickerPeriod = 1.5;
+                    for(var i = 0; i < (0 || (duration/flickerPeriod)); ++i) {
+                        keyframes.push({
+                            frame: i * flickerPeriod,
+                            tx: compPos.x,
+                            ty: compPos.y,
+                            props: {
+                                textColorR: (i % 3 === 0) ? 255 : 0,
+                                textColorG: (i % 3 === 1) ? 255 : 0,
+                                textColorB: (i % 3 === 2) ? 255 : 0,
+                                backColorR: (i % 3 !== 0) ? 255 : 0,
+                                backColorG: (i % 3 !== 1) ? 255 : 0,
+                                backColorB: (i % 3 !== 2) ? 255 : 0,
+                            },
+                            ease: linearStep
+                        });
+                    }
+                    return keyframes;
+                })()
             },
 
             {

@@ -117,14 +117,15 @@
                             // Get every property in the props object
                             for( var propKey in startKeyframe.props ) {
 
-                                var startKeyframeProp = startKeyframe.props[propKey];
+                                var startKeyframeProp = startKeyframe.props[propKey],
+                                    distanceKeyframProp = (endKeyframe.props[propKey] - startKeyframeProp) || 0;
                                 // We can only tween numeric values
                                 if(isNaN(startKeyframeProp)){
                                     props[propKey] = startKeyframeProp;
                                 } else {
                                     props[propKey] = ease(currentTweenFrame,
                                                           startKeyframeProp,
-                                                          endKeyframe.props[propKey] || 0,
+                                                          distanceKeyframProp,
                                                           duration);
                                 }
 
