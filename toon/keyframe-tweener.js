@@ -156,6 +156,11 @@
             return distance * percentComplete + start;
         },
 
+        linearStep: function (currentTime, start, distance, duration) {
+            var percentComplete = currentTime / duration;
+            return Math.floor(distance * percentComplete + start);
+        },
+
         quadEaseIn: function (currentTime, start, distance, duration) {
             var percentComplete = currentTime / duration;
             return distance * percentComplete * percentComplete + start;
@@ -171,6 +176,19 @@
             return (percentComplete < 1) ?
                     (distance / 2) * percentComplete * percentComplete + start :
                     (-distance / 2) * ((percentComplete - 1) * (percentComplete - 3) - 1) + start;
+        },
+        // We're going to go .3 beyond the bound, then return
+        wackyEaseOutAndIn: function (currentTime, start, distance, duration) {
+            var distanceOut = .3;
+            var percentComplete = currentTime / duration;
+            return (percentComplete < 1) ?
+                    (distance * (1 + distanceOut)) * (percentComplete * 2) + start :
+                    (distance * (1 + distanceOut) - distance * distanceOut * (percentComplete - 0.5)) + start;
+        },
+
+        // From https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
+        easeInExpo: function (t, b, c, d) {
+            return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
         },
 
         initialize: initializeAnimation

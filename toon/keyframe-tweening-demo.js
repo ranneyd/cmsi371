@@ -5,19 +5,16 @@
 (function () {
     var canvas = document.getElementById("canvas"),
 
-        linearStep = function (currentTime, start, distance, duration) {
-            var percentComplete = currentTime / duration;
-            return Math.floor(distance * percentComplete + start);
-        },
-
         // Then, we have "easing functions" that determine how
         // intermediate frames are computed.
 
         // Now, to actually define the animated sprites.  Each sprite
         // has a drawing function and an array of keyframes.
         
-        duration = 500,
-        compPos = { x: 500, y: 400 };
+        duration = 100,
+        explosionTime = 15,
+        compPos = { x: 600, y: 300 },
+        kidPos = { x: 300, y: 200 },
         sprites = [
             {
                 draw: computer,
@@ -37,43 +34,53 @@
                                 backColorG: (i % 3 !== 1) ? 255 : 0,
                                 backColorB: (i % 3 !== 2) ? 255 : 0,
                             },
-                            ease: linearStep
+                            ease: KeyframeTweener.linearStep
                         });
                     }
                     return keyframes;
                 })()
+            },
+            {
+                draw: kid,
+                keyframes: [
+                    {
+                        frame: 0,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        ease: KeyframeTweener.linear
+                    },
+
+                    {
+                        frame: duration,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        ease: KeyframeTweener.linear
+                    },
+                ]
             },
 
             {
                 draw: explosion,
                 keyframes: [
                     {
-                        frame: 50,
-                        tx: 300,
-                        ty: 600,
-                        sx: 0.5,
-                        sy: 0.5,
+                        frame: duration - explosionTime,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 0,
+                        sy: 0,
                         ease: KeyframeTweener.quadEaseOut
                     },
 
                     {
-                        frame: 100,
-                        tx: 300,
-                        ty: 0,
-                        sx: 3,
-                        sy: 0.25,
-                        ease: KeyframeTweener.quadEaseOut
+                        frame: duration,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 10,
+                        sy: 10,
+                        ease: KeyframeTweener.easeInExpo
                     },
-
-                    {
-                        frame: 150,
-                        tx: 300,
-                        ty: 600,
-                        sx: 0.5,
-                        sy: 0.5
-                    }
                 ]
-            }
+            },
         ];
 
     // Finally, we initialize the engine.  Mainly, it needs
