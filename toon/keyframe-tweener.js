@@ -120,9 +120,11 @@
                             for( var propKey in startKeyframe.props ) {
 
                                 var startKeyframeProp = startKeyframe.props[propKey],
-                                    distanceKeyframProp = (endKeyframe.props[propKey] - startKeyframeProp) || 0;
+                                    distanceKeyframProp = (endKeyframe.props[propKey] 
+                                                            - startKeyframeProp) || 0;
                                 // We can only tween numeric values
                                 if(isNaN(startKeyframeProp)){
+                                    // If it's a non-tweenable value, just set it immediately
                                     props[propKey] = startKeyframeProp;
                                 } else {
                                     props[propKey] = ease(currentTweenFrame,

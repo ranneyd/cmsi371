@@ -18,10 +18,13 @@
         sprites = [
             {
                 draw: computer,
-                keyframes: ( function(){
+                // The computer flickers, so the keyframes will be frequent and numerous. It's
+                // easier to generate them with this function
+                keyframes: ( function () {
                     var keyframes = [],
                         flickerPeriod = 1.5;
-                    for(var i = 0; i < (0 || (duration/flickerPeriod)); ++i) {
+
+                    for( var i = 0; i < (0 || ( duration / flickerPeriod )); ++i ) {
                         keyframes.push({
                             frame: i * flickerPeriod,
                             tx: compPos.x,
@@ -34,6 +37,7 @@
                                 backColorG: (i % 3 !== 1) ? 255 : 0,
                                 backColorB: (i % 3 !== 2) ? 255 : 0,
                             },
+                            // linearStep is linear but always returns an int
                             ease: KeyframeTweener.linearStep
                         });
                     }
