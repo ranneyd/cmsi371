@@ -11,8 +11,8 @@
         // Now, to actually define the animated sprites.  Each sprite
         // has a drawing function and an array of keyframes.
         
-        duration = 150,
-        explosionTime = 15,
+        duration = 330,
+        explosionTime = 20,
         compPos = { x: 600, y: 300 },
         kidPos = { x: 300, y: 200 },
         sprites = [
@@ -51,32 +51,85 @@
                             eyeRedness: 0,
                             mouthYOffset: 0,
                         },
-                        ease: KeyframeTweener.linear
+                        ease: KeyframeTweener.quadEaseIn
                     },
                     {
-                        frame: 20,
+                        frame: 80,
                         tx: kidPos.x,
                         ty: kidPos.y,
                         sx: 1,
                         props:{
-                            eyeRedness: 0,
+                            eyeRedness: 100,
                             mouthYOffset: 0,
                             eyeSpreadDelta: 0,
                         },
-                        ease: KeyframeTweener.linear
+                        ease: KeyframeTweener.sineAlt
+                    },
+                    {
+                        frame: 200,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 1,
+                        rotate: 75,
+                        props:{
+                            eyeRedness: 100,
+                            mouthYOffset: 0,
+                            eyeSpreadDelta: 0,
+                        },
+                        ease: KeyframeTweener.wackyEaseOutAndIn
+                    },
+                    {
+                        frame: 240,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 1,
+                        rotate: 0,
+                        props:{
+                            eyeRedness: 100,
+                            mouthYOffset: -30,
+                            eyeSpreadDelta: -30,
+                        },
+                        ease: KeyframeTweener.quadEaseOut
+                    },
+                    {
+                        frame: duration - explosionTime - 30,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 1.5,
+                        rotate: 720,
+                        props:{
+                            eyeRedness: 100,
+                            mouthYOffset: 30,
+                            eyeSpreadDelta: 30,
+                        },
+                        ease: KeyframeTweener.easeInExpo
+                    },
+                    {
+                        frame: duration - explosionTime - 2,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: .2,
+                        sy: .2,
+                        rotate: 360,
+                        props:{
+                            eyeRedness: 100,
+                            mouthYOffset: -20,
+                            eyeSpreadDelta: -20,
+                        },
+                        ease: KeyframeTweener.quadEaseOut
                     },
                     {
                         frame: duration,
                         tx: kidPos.x,
                         ty: kidPos.y,
-                        sx: 2,
+                        sx: 1,
+                        sy: 1,
                         rotate: 360,
                         props:{
                             eyeRedness: 100,
-                            mouthYOffset: 30,
-                            eyeSpreadDelta: 50,
+                            mouthYOffset: 3000,
+                            eyeSpreadDelta: 3000,
                         },
-                        ease: KeyframeTweener.linear
                     },
                 ]
             },
@@ -90,16 +143,23 @@
                         ty: kidPos.y,
                         sx: 0,
                         sy: 0,
-                        ease: KeyframeTweener.quadEaseOut
+                        ease: KeyframeTweener.cubic
                     },
 
+                    {
+                        frame: duration-5,
+                        tx: kidPos.x,
+                        ty: kidPos.y,
+                        sx: 4,
+                        sy: 4,
+                        ease: KeyframeTweener.linear
+                    },
                     {
                         frame: duration,
                         tx: kidPos.x,
                         ty: kidPos.y,
-                        sx: 10,
-                        sy: 10,
-                        ease: KeyframeTweener.easeInExpo
+                        sx: 15,
+                        sy: 15,
                     },
                 ]
             },
