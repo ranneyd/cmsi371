@@ -120,7 +120,7 @@
     renderingContext.stroke();
 
     // Set a little event handler to apply the filter.
-    $("#apply-filter-button").click(function () {
+    $("#darken-button").click(function () {
         // Filter time.
         renderingContext.putImageData(
             NanoshopNeighborhood.applyFilter(
@@ -128,6 +128,28 @@
                 renderingContext.getImageData(0, 0, canvas.width, canvas.height),
                 NanoshopNeighborhood.darkener
                 //NanoshopNeighborhood.averager // Convenience comment for easy switching.
+            ),
+            0, 0
+        );
+    });
+    $("#average-button").click(function () {
+        // Filter time.
+        renderingContext.putImageData(
+            NanoshopNeighborhood.applyFilter(
+                renderingContext,
+                renderingContext.getImageData(0, 0, canvas.width, canvas.height),
+                NanoshopNeighborhood.averager
+            ),
+            0, 0
+        );
+    });
+    $("#edgy-button").click(function () {
+        // Filter time.
+        renderingContext.putImageData(
+            NanoshopNeighborhood.applyFilter(
+                renderingContext,
+                renderingContext.getImageData(0, 0, canvas.width, canvas.height),
+                NanoshopNeighborhood.basicEdgeDetector
             ),
             0, 0
         );
