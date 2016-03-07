@@ -1,3 +1,4 @@
+'use strict';
 /*
  * This is a very simple module that demonstrates rudimentary,
  * pixel-level image processing using a pixel's "neighborhood."
@@ -35,7 +36,25 @@ var NanoshopNeighborhood = {
 
         return [ rTotal / 9, gTotal / 9, bTotal / 9, aTotal / 9 ];
     },
+    /*
+     * Like averager, but does median instead.
+     * Inspired by http://lodev.org/cgtutor/filtering.html
+     */
+    median: function (x, y, rgbaNeighborhood) {
+        var r = new Array(9);
+        var g = new Array(9);
+        var b = new Array(9);
+        var a = new Array(9);
 
+        for (var i = 0; i < 9; i += 1) {
+            r[i] = rgbaNeighborhood[i].r;
+            g[i] = rgbaNeighborhood[i].g;
+            b[i] = rgbaNeighborhood[i].b;
+            a[i] = rgbaNeighborhood[i].a;
+        }
+
+        return [ r.sort()[4], g.sort()[4], b.sort()[4], a.sort()[4] ];
+    },
     /*
      * This is a rudimentary edge dector---another filter that would not be possible
      * without knowing about the other pixels in our neighborhood.
@@ -54,7 +73,23 @@ var NanoshopNeighborhood = {
         return myAverage < neighborAverage ? [ 0, 0, 0, rgbaNeighborhood[4].a ] :
                 [ 255, 255, 255, rgbaNeighborhood[4].a ];
     },
+    /*
+     * http://lodev.org/cgtutor/filtering.html#Sharpen
+     */
+    sharpen: function (x, y, rgba) {
+        let edge = NanoshopNeighborhood.basicEdgeDetector(x, y, rgba);
+        let rgbaObj = [];
+        for(let key in rgba[4]) {
+            if(edge[0]){
+                rgbaObj.push(Math.min(255, rgba[4][key]*1.2))
+            }
+            else {
+                rgbaObj.push(rgba[4][key])
+            }
+        }
 
+        return rgbaObj;
+    },
     /*
      * Applies the given filter to the given ImageData object,
      * then modifies its pixels according to the given filter.
@@ -63,7 +98,7 @@ var NanoshopNeighborhood = {
      * color as a 4-element array representing the new RGBA value
      * that should go in the center pixel.
      */
-    applyFilter: function (renderingContext, imageData, filter) {
+    applyFilter: function (renderingContext, imageData, filter, callback) {
         // For every pixel, replace with something determined by the filter.
         var result = renderingContext.createImageData(imageData.width, imageData.height);
         var rowWidth = imageData.width * 4;
@@ -131,7 +166,6 @@ var NanoshopNeighborhood = {
                 destinationArray[i + j] = pixel[j];
             }
         }
-
         return result;
     }
 };

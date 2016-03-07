@@ -143,6 +143,17 @@
             0, 0
         );
     });
+    $("#median-button").click(function () {
+        // Filter time.
+        renderingContext.putImageData(
+            NanoshopNeighborhood.applyFilter(
+                renderingContext,
+                renderingContext.getImageData(0, 0, canvas.width, canvas.height),
+                NanoshopNeighborhood.median
+            ),
+            0, 0
+        );
+    });
     $("#edgy-button").click(function () {
         // Filter time.
         renderingContext.putImageData(
@@ -150,6 +161,17 @@
                 renderingContext,
                 renderingContext.getImageData(0, 0, canvas.width, canvas.height),
                 NanoshopNeighborhood.basicEdgeDetector
+            ),
+            0, 0
+        );
+    });
+    $("#sharpen-button").click(function () {
+        // Filter time.
+        renderingContext.putImageData(
+            NanoshopNeighborhood.applyFilter(
+                renderingContext,
+                renderingContext.getImageData(0, 0, canvas.width, canvas.height),
+                NanoshopNeighborhood.sharpen
             ),
             0, 0
         );
