@@ -10,8 +10,10 @@ var Primitives = {
      */
     setPixel: function (context, x, y, r, g, b) {
         context.save();
-        context.fillStyle = "rgb(" + parseInt(r, 10) + "," +
-                parseInt(g, 10) + "," + parseInt(b, 10) + ")";
+        context.fillStyle = "red";
+        context.fillRect(x, y, 1, 1);
+        context.fillStyle = "rgba(" + parseInt(r, 10) + "," +
+                parseInt(g, 10) + "," + parseInt(b, 10) + ", 1)";
         context.fillRect(x, y, 1, 1);
         context.restore();
     },
@@ -295,21 +297,23 @@ var Primitives = {
     plotCirclePoints: function (context, xc, yc, x, y, r, gradient) {
         let intX = (x - .5) | 0;
         let intY = (y - .5) | 0;
+        console.log(`intX: ${intX}, intY: ${intY}, x: ${x}, y: ${y}`);
+
         for(let i = 0; i < x; ++i){
-            this.setPixel(context, xc + i, yc + y, ...gradient.getPixel(r + i, r + intY));
-            this.setPixel(context, xc + i, yc - y, ...gradient.getPixel(r + i, r - intY));
+            this.setPixel(context, xc + i, yc + intY, ...gradient.getPixel(r + i, r + intY));
+            this.setPixel(context, xc + i, yc - intY, ...gradient.getPixel(r + i, r - intY));
         }
         for(let i = 0; i < y; ++i){
-            this.setPixel(context, xc + i, yc + x, ...gradient.getPixel(r + i, r + intX));
-            this.setPixel(context, xc + i, yc - x, ...gradient.getPixel(r + i, r - intX));
+            this.setPixel(context, xc + i, yc + intX, ...gradient.getPixel(r + i, r + intX));
+            this.setPixel(context, xc + i, yc - intX, ...gradient.getPixel(r + i, r - intX));
         }
         for(let i = 0; i < x; ++i){
-            this.setPixel(context, xc - i, yc + y, ...gradient.getPixel(r - i, r + intY));
-            this.setPixel(context, xc - i, yc - y, ...gradient.getPixel(r - i, r - intY));
+            this.setPixel(context, xc - i, yc + intY, ...gradient.getPixel(r - i, r + intY));
+            this.setPixel(context, xc - i, yc - intY, ...gradient.getPixel(r - i, r - intY));
         }
         for(let i = 0; i < y; ++i){
-            this.setPixel(context, xc - i, yc + x, ...gradient.getPixel(r - i, r + intX));
-            this.setPixel(context, xc - i, yc - x, ...gradient.getPixel(r - i, r - intX));
+            this.setPixel(context, xc - i, yc + intX, ...gradient.getPixel(r - i, r + intX));
+            this.setPixel(context, xc - i, yc - intX, ...gradient.getPixel(r - i, r - intX));
         }
     },
 
