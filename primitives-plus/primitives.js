@@ -295,15 +295,22 @@ var Primitives = {
     plotCirclePoints: function (context, xc, yc, x, y, r, gradient) {
         let intX = (x - .5) | 0;
         let intY = (y - .5) | 0;
-        let intR = (r - .5) | 0;
-        this.setPixel(context, xc + x, yc + y, ...gradient.getPixel(intR + intX, intR + intY));
-        this.setPixel(context, xc + x, yc - y, ...gradient.getPixel(intR + intX, intR - intY));
-        this.setPixel(context, xc + y, yc + x, ...gradient.getPixel(intR + intY, intR + intX));
-        this.setPixel(context, xc + y, yc - x, ...gradient.getPixel(intR + intY, intR - intX));
-        this.setPixel(context, xc - x, yc + y, ...gradient.getPixel(intR - intX, intR + intY));
-        this.setPixel(context, xc - x, yc - y, ...gradient.getPixel(intR - intX, intR - intY));
-        this.setPixel(context, xc - y, yc + x, ...gradient.getPixel(intR - intY, intR + intX));
-        this.setPixel(context, xc - y, yc - x, ...gradient.getPixel(intR - intY, intR - intX));
+        for(let i = 0; i < x; ++i){
+            this.setPixel(context, xc + i, yc + y, ...gradient.getPixel(r + i, r + intY));
+            this.setPixel(context, xc + i, yc - y, ...gradient.getPixel(r + i, r - intY));
+        }
+        for(let i = 0; i < y; ++i){
+            this.setPixel(context, xc + i, yc + x, ...gradient.getPixel(r + i, r + intX));
+            this.setPixel(context, xc + i, yc - x, ...gradient.getPixel(r + i, r - intX));
+        }
+        for(let i = 0; i < x; ++i){
+            this.setPixel(context, xc - i, yc + y, ...gradient.getPixel(r - i, r + intY));
+            this.setPixel(context, xc - i, yc - y, ...gradient.getPixel(r - i, r - intY));
+        }
+        for(let i = 0; i < y; ++i){
+            this.setPixel(context, xc - i, yc + x, ...gradient.getPixel(r - i, r + intX));
+            this.setPixel(context, xc - i, yc - x, ...gradient.getPixel(r - i, r - intX));
+        }
     },
 
     // First, the most naive possible implementation: circle by trigonometry.
