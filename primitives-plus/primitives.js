@@ -70,8 +70,7 @@ var Primitives = {
             }
             // Fills the gradient matrix with the one color
             oneColor(color) {
-                let newColor = color.getColor();
-                this.pixels.fill(newColor);
+                this.pixels.fill(color.getColor());
                 return this;
             }
             // Fills the gradient with a vertical linear gradient
@@ -126,7 +125,7 @@ var Primitives = {
         let gradient = new Gradient(w, h);
 
         if(!c1) {
-            gradient.oneColor(new Color([0, 0, 0]));
+            gradient.oneColor(new Color(0, 0, 0));
         }
         else if(!c2) {
             gradient.oneColor(new Color(...c1));
@@ -293,16 +292,18 @@ var Primitives = {
      * permutations of that eighth's coordinates.  So we define a helper
      * function that all of the circle implementations will use...
      */
-    plotCirclePoints: function (context, xc, yc, x, y, c1, c2, c3, c4) {
-        let color = c1 || [0, 0, 0];
-        this.setPixel(context, xc + x, yc + y, color[0], color[1], color[2]);
-        this.setPixel(context, xc + x, yc - y, color[0], color[1], color[2]);
-        this.setPixel(context, xc + y, yc + x, color[0], color[1], color[2]);
-        this.setPixel(context, xc + y, yc - x, color[0], color[1], color[2]);
-        this.setPixel(context, xc - x, yc + y, color[0], color[1], color[2]);
-        this.setPixel(context, xc - x, yc - y, color[0], color[1], color[2]);
-        this.setPixel(context, xc - y, yc + x, color[0], color[1], color[2]);
-        this.setPixel(context, xc - y, yc - x, color[0], color[1], color[2]);
+    plotCirclePoints: function (context, xc, yc, x, y, r, gradient) {
+        let intX = (x - .5) | 0;
+        let intY = (y - .5) | 0;
+        let intR = (r - .5) | 0;
+        this.setPixel(context, xc + x, yc + y, ...gradient.getPixel(intR + intX, intR + intY));
+        this.setPixel(context, xc + x, yc - y, ...gradient.getPixel(intR + intX, intR - intY));
+        this.setPixel(context, xc + y, yc + x, ...gradient.getPixel(intR + intY, intR + intX));
+        this.setPixel(context, xc + y, yc - x, ...gradient.getPixel(intR + intY, intR - intX));
+        this.setPixel(context, xc - x, yc + y, ...gradient.getPixel(intR - intX, intR + intY));
+        this.setPixel(context, xc - x, yc - y, ...gradient.getPixel(intR - intX, intR - intY));
+        this.setPixel(context, xc - y, yc + x, ...gradient.getPixel(intR - intY, intR + intX));
+        this.setPixel(context, xc - y, yc - x, ...gradient.getPixel(intR - intY, intR - intX));
     },
 
     // First, the most naive possible implementation: circle by trigonometry.
@@ -317,8 +318,11 @@ var Primitives = {
         var x = r;
         var y = 0;
 
+        let gradient = Primitives.gradientFillMatrix(r * 2, r * 2, c1, c2, c3, c4);
+
+
         while (x >= y) {
-            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
+            this.plotCirclePoints(context, xc, yc, x, y, r, gradient);
             x = x * c - y * s;
             y = x * s + y * c;
         }
@@ -330,8 +334,10 @@ var Primitives = {
         var x = r;
         var y = 0;
 
+        let gradient = Primitives.gradientFillMatrix(r * 2, r * 2, c1, c2, c3, c4);
+
         while (x >= y) {
-            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
+            this.plotCirclePoints(context, xc, yc, x, y, r, gradient);
             x = x - (epsilon * y);
             y = y + (epsilon * x);
         }
@@ -343,8 +349,10 @@ var Primitives = {
         var x = 0;
         var y = r;
 
+        let gradient = Primitives.gradientFillMatrix(r * 2, r * 2, c1, c2, c3, c4);
+
         while (x < y) {
-            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
+            this.plotCirclePoints(context, xc, yc, x, y, r, gradient);
             if (p < 0) {
                 p = p + 4 * x + 6;
             } else {
@@ -354,7 +362,7 @@ var Primitives = {
             x += 1;
         }
         if (x === y) {
-            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
+            this.plotCirclePoints(context, xc, yc, x, y, r, gradient);
         }
     },
 
@@ -366,8 +374,10 @@ var Primitives = {
         var u = 1;
         var v = e - r;
 
+        let gradient = Primitives.gradientFillMatrix(r * 2, r * 2, c1, c2, c3, c4);
+
         while (x <= y) {
-            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
+            this.plotCirclePoints(context, xc, yc, x, y, r, gradient);
             if (e < 0) {
                 x += 1;
                 u += 2;
@@ -389,8 +399,10 @@ var Primitives = {
         var y = 0;
         var e = 0;
 
+        let gradient = Primitives.gradientFillMatrix(r * 2, r * 2, c1, c2, c3, c4);
+
         while (y <= x) {
-            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
+            this.plotCirclePoints(context, xc, yc, x, y, r, gradient);
             y += 1;
             e += (2 * y - 1);
             if (e > x) {
