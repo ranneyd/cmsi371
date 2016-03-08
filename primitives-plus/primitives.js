@@ -1,3 +1,4 @@
+'use strict';
 /*
  * A module demonstrating assorted algorithms for selected 2D graphics
  * operations.
@@ -14,126 +15,146 @@ var Primitives = {
         context.fillRect(x, y, 1, 1);
         context.restore();
     },
+    // Given the dimensions of a rectangle and 1-4 colors, this creates
+    // a two dimensional array that represents the coloring of every pixel
+    gradientFillMatrix: function(w, h, c1, c2, c3, c4) {
+        // Colors have three data members: r, g, and b.
+        class Color{
+            constructor(r, g, b) {
+                this.r = r;
+                this.g = g;
+                this.b = b;
+            }
+            getColor() {
+                return [this.r, this.g, this.b];
+            }
+            setColor(r, g, b) {
+                this.r = r;
+                this.g = g;
+                this.b = b;
+                return this;
+            }
+            // Add 'color' to this
+            add(color) {
+                this.r += color.r;
+                this.g += color.g;
+                this.b += color.b;
+                return this;
+            }
+            // Scale all elements of this by 'scale'
+            scale(scale) {
+                this.r *= scale;
+                this.g *= scale;
+                this.b *= scale;
+                return this;
+            }
+            // return a copy of this
+            copy() {
+                return new Color(this.r, this.g, this.b);
+            }
+        }
+        class Gradient {
+            constructor(width, height){
+                this.width = width;
+                this.height = height;
+                this.pixels = new Array( width * height );
+            }
+            setPixel(x, y, color) {
+                this.pixels[y*this.width + x] = color.getColor();
+                return this;
+            }
+            // Returns an array of the color [r, g, b] rather than the color
+            // object for convenience
+            getPixel(x, y) {
+                return this.pixels[y*this.width + x];
+            }
+            // Fills the gradient matrix with the one color
+            oneColor(color) {
+                let newColor = color.getColor();
+                this.pixels.fill(newColor);
+                return this;
+            }
+            // Fills the gradient with a vertical linear gradient
+            twoColor(c1, c2) {
+                // This changes c2 and aliases it as vDelta, but that's ok
+                // since we never use it again. This is more efficient than
+                // making a new Color for vDelta
+                let vDelta = c2.add(c1.copy().scale(-1)) // c2 - c1
+                               .scale(1 / this.height);  // (^^^^^) / h
 
+                for (let y = 0; y < h; ++y) {
+                    for (let x = 0; x < w; ++x) {
+                        this.setPixel(x, y, c1);
+                    }
+
+                    // Move to the next level of the gradient.
+                    c1.add(vDelta);
+                }
+                return this;
+            }
+            fourColor(c1, c2, c3, c4) {
+                // Like twoColor, but left and right have different deltas
+                // Once again, we never use c3 or c4 again, so we can safely
+                // change them, but alias them as leftDelta and rightDelta for
+                // clarity
+                let leftDelta = c3.add(c1.copy().scale(-1))
+                               .scale(1 / this.height);
+                let rightDelta = c4.add(c2.copy().scale(-1))
+                               .scale(1 / this.height);
+
+                for (let y = 0; y < h; ++y) {
+                    // Since we're going left to right then coming back around
+                    // again, we have to make copies and can't just change the
+                    // values like we do for the vertical deltas
+                    let left = c1.copy();
+                    let delta = c2.copy()
+                                  .add(c1.copy().scale(-1)) // c2 - c1
+                                  .scale(1 / this.width);   // (^^^^^) / h
+
+                    for (let x = 0; x < w; ++x) {
+                        this.setPixel(x, y, left.add(delta));
+                    }
+
+                    // Move to the next level of the gradient.
+                    c1.add(leftDelta);
+                    c2.add(rightDelta);
+                }
+                return this;
+            }
+        }
+
+        let gradient = new Gradient(w, h);
+
+        if(!c1) {
+            gradient.oneColor(new Color([0, 0, 0]));
+        }
+        else if(!c2) {
+            gradient.oneColor(new Color(...c1));
+        }
+        else if(!c3) {
+            gradient.twoColor(new Color(...c1), new Color(...c2));
+        }
+        else {
+            gradient.fourColor(new Color(...c1), 
+                               new Color(...c2),
+                               new Color(...c3),
+                               c4 ? new Color(...c4) : new Color(...c3));
+        }
+
+        return gradient;
+    },
     /*
      * The easy fill case: rectangles.  We take advantage of JavaScript's
      * "optional" parameter mechanism to keep things at a single method.
      */
     fillRect: function (context, x, y, w, h, c1, c2, c3, c4) {
         var module = this;
-        var i;
-        var j;
-        var bottom = y + h;
-        var right = x + w;
-        var leftColor = c1 ? [c1[0], c1[1], c1[2]] : c1;
-        var rightColor = c2 ? [c2[0], c2[1], c2[2]] : c2;
-        var leftVDelta;
-        var rightVDelta;
-        var hDelta;
-        var currentColor;
-
-        // We have four subcases: zero, one, two, or four colors
-        // supplied.  The three-color case will be treated as if
-        // the third and fourth colors are the same.  Instead of
-        // embedding different logic into a single loop, we just
-        // break them up.  This allows each case to be "optimal"
-        // and simplifies reading the code.  There *is* some
-        // duplicate code, but in this case the benefits outweigh
-        // the cost.
-        var fillRectNoColor = function () {
-            // The rendering context will just ignore the
-            // undefined colors in this case.
-            for (i = y; i < bottom; i += 1) {
-                for (j = x; j < right; j += 1) {
-                    module.setPixel(context, j, i);
-                }
+        let gradient = Primitives.gradientFillMatrix(w, h, c1, c2, c3, c4);
+        
+        for(let i = 0; i < h; ++i) {
+            for(let j = 0; j < w; ++j) {
+                module.setPixel(context, x + j, y + i, ...gradient.getPixel(j, i));
             }
-        };
-
-        var fillRectOneColor = function () {
-            // Single color all the way through.
-            for (i = y; i < bottom; i += 1) {
-                for (j = x; j < right; j += 1) {
-                    module.setPixel(context, j, i, c1[0], c1[1], c1[2]);
-                }
-            }
-        };
-
-        var fillRectTwoColors = function () {
-            // This modifies the color vertically only.
-            for (i = y; i < bottom; i += 1) {
-                for (j = x; j < right; j += 1) {
-                    module.setPixel(context, j, i,
-                            leftColor[0],
-                            leftColor[1],
-                            leftColor[2]);
-                }
-
-                // Move to the next level of the gradient.
-                leftColor[0] += leftVDelta[0];
-                leftColor[1] += leftVDelta[1];
-                leftColor[2] += leftVDelta[2];
-            }
-        };
-
-        var fillRectFourColors = function () {
-            for (i = y; i < bottom; i += 1) {
-                // Move to the next "vertical" color level.
-                currentColor = [leftColor[0], leftColor[1], leftColor[2]];
-                hDelta = [(rightColor[0] - leftColor[0]) / w,
-                          (rightColor[1] - leftColor[1]) / w,
-                          (rightColor[2] - leftColor[2]) / w];
-
-                for (j = x; j < right; j += 1) {
-                    module.setPixel(context, j, i,
-                            currentColor[0],
-                            currentColor[1],
-                            currentColor[2]);
-
-                    // Move to the next color horizontally.
-                    currentColor[0] += hDelta[0];
-                    currentColor[1] += hDelta[1];
-                    currentColor[2] += hDelta[2];
-                }
-
-                // The color on each side "grades" at different rates.
-                leftColor[0] += leftVDelta[0];
-                leftColor[1] += leftVDelta[1];
-                leftColor[2] += leftVDelta[2];
-                rightColor[0] += rightVDelta[0];
-                rightColor[1] += rightVDelta[1];
-                rightColor[2] += rightVDelta[2];
-            }
-        };
-
-        // Depending on which colors are supplied, we call a different
-        // version of the fill code.
-        if (!c1) {
-            fillRectNoColor();
-        } else if (!c2) {
-            fillRectOneColor();
-        } else if (!c3) {
-            // For this case, we set up the left vertical deltas.
-            leftVDelta = [(c2[0] - c1[0]) / h,
-                      (c2[1] - c1[1]) / h,
-                      (c2[2] - c1[2]) / h];
-            fillRectTwoColors();
-        } else {
-            // The four-color case, with a quick assignment in case
-            // there are only three colors.
-            c4 = c4 || c3;
-
-            // In primitives, one tends to see repeated code more
-            // often than function calls, because this is the rare
-            // situation where function call overhead costs more
-            // than repeated code.
-            leftVDelta = [(c3[0] - c1[0]) / h,
-                      (c3[1] - c1[1]) / h,
-                      (c3[2] - c1[2]) / h];
-            rightVDelta = [(c4[0] - c2[0]) / h,
-                      (c4[1] - c2[1]) / h,
-                      (c4[2] - c2[2]) / h];
-            fillRectFourColors();
         }
     },
 
@@ -272,8 +293,8 @@ var Primitives = {
      * permutations of that eighth's coordinates.  So we define a helper
      * function that all of the circle implementations will use...
      */
-    plotCirclePoints: function (context, xc, yc, x, y, color) {
-        color = color || [0, 0, 0];
+    plotCirclePoints: function (context, xc, yc, x, y, c1, c2, c3, c4) {
+        let color = c1 || [0, 0, 0];
         this.setPixel(context, xc + x, yc + y, color[0], color[1], color[2]);
         this.setPixel(context, xc + x, yc - y, color[0], color[1], color[2]);
         this.setPixel(context, xc + y, yc + x, color[0], color[1], color[2]);
@@ -285,7 +306,7 @@ var Primitives = {
     },
 
     // First, the most naive possible implementation: circle by trigonometry.
-    circleTrig: function (context, xc, yc, r, color) {
+    circleTrig: function (context, xc, yc, r, c1, c2, c3, c4) {
         var theta = 1 / r;
 
         // At the very least, we compute our sine and cosine just once.
@@ -297,33 +318,33 @@ var Primitives = {
         var y = 0;
 
         while (x >= y) {
-            this.plotCirclePoints(context, xc, yc, x, y, color);
+            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
             x = x * c - y * s;
             y = x * s + y * c;
         }
     },
 
     // Now DDA.
-    circleDDA: function (context, xc, yc, r, color) {
+    circleDDA: function (context, xc, yc, r, c1, c2, c3, c4) {
         var epsilon = 1 / r;
         var x = r;
         var y = 0;
 
         while (x >= y) {
-            this.plotCirclePoints(context, xc, yc, x, y, color);
+            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
             x = x - (epsilon * y);
             y = y + (epsilon * x);
         }
     },
 
     // One of three Bresenham-like approaches.
-    circleBres1: function (context, xc, yc, r, color) {
+    circleBres1: function (context, xc, yc, r, c1, c2, c3, c4) {
         var p = 3 - 2 * r;
         var x = 0;
         var y = r;
 
         while (x < y) {
-            this.plotCirclePoints(context, xc, yc, x, y, color);
+            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
             if (p < 0) {
                 p = p + 4 * x + 6;
             } else {
@@ -333,12 +354,12 @@ var Primitives = {
             x += 1;
         }
         if (x === y) {
-            this.plotCirclePoints(context, xc, yc, x, y, color);
+            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
         }
     },
 
     // And another...
-    circleBres2: function (context, xc, yc, r, color) {
+    circleBres2: function (context, xc, yc, r, c1, c2, c3, c4) {
         var x = 0;
         var y = r;
         var e = 1 - r;
@@ -346,7 +367,7 @@ var Primitives = {
         var v = e - r;
 
         while (x <= y) {
-            this.plotCirclePoints(context, xc, yc, x, y, color);
+            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
             if (e < 0) {
                 x += 1;
                 u += 2;
@@ -363,13 +384,13 @@ var Primitives = {
     },
 
     // Last but not least...
-    circleBres3: function (context, xc, yc, r, color) {
+    circleBres3: function (context, xc, yc, r, c1, c2, c3, c4) {
         var x = r;
         var y = 0;
         var e = 0;
 
         while (y <= x) {
-            this.plotCirclePoints(context, xc, yc, x, y, color);
+            this.plotCirclePoints(context, xc, yc, x, y, c1, c2, c3, c4);
             y += 1;
             e += (2 * y - 1);
             if (e > x) {
