@@ -295,9 +295,12 @@ var Primitives = {
      * function that all of the circle implementations will use...
      */
     plotCirclePoints: function (context, xc, yc, x, y, r, gradient) {
+        // Make them integers the old fashioned way with the +.5 and integer
+        // division trick. However, I'm subtracting by 1 because they
+        // correspond to coordinate values and the origin is 0,0 (doesn't
+        // start at 1). So .5 - 1 = -.5.
         let intX = (x - .5) | 0;
         let intY = (y - .5) | 0;
-        console.log(`intX: ${intX}, intY: ${intY}, x: ${x}, y: ${y}`);
 
         for(let i = 0; i < x; ++i){
             this.setPixel(context, xc + i, yc + intY, ...gradient.getPixel(r + i, r + intY));
