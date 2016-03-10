@@ -1,3 +1,4 @@
+'use strict';
 /*
  * This module defines/generates vertex arrays for certain predefined shapes.
  * The "shapes" are returned as indexed vertices, with utility functions for
@@ -50,6 +51,40 @@ var Shapes = {
                 [ 5, 2, 9 ],
                 [ 11, 2, 7 ]
             ]
+        };
+    },
+    /*
+     * Returns the vertices for a small cone.
+     */
+    cone: function (faceCount) {
+        // These variables are actually "constants" for icosahedron coordinates.
+        const X = 0;
+        const Y = 0;
+        const Z = 0;
+        const H = 0.5;
+        const R = 0.5;
+
+        let vertices = [
+            [ X, Y, Z]
+        ];
+        let indices = [];
+
+        let thetaDelta = 2 * Math.PI / faceCount;
+        let angle = 0;
+        for(let i = 1; i < faceCount + 1; ++i) {
+            vertices.push(
+                [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
+            );
+            if( i > 1 ) {
+                indices.push([0, i - 1, i]);
+            }
+            angle += thetaDelta;
+        }
+        indices.push([0, faceCount, 1]);
+
+        return {
+            vertices: vertices,
+            indices: indices
         };
     },
 
