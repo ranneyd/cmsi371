@@ -57,7 +57,6 @@ var Shapes = {
      * Returns the vertices for a small cone.
      */
     cone: function (faceCount) {
-        // These variables are actually "constants" for icosahedron coordinates.
         const X = 0;
         const Y = 0;
         const Z = 0;
@@ -81,6 +80,44 @@ var Shapes = {
             angle += thetaDelta;
         }
         indices.push([0, faceCount, 1]);
+
+        return {
+            vertices: vertices,
+            indices: indices
+        };
+    },
+    cylinder: function(resolution) {
+        const R = 0.5;
+        const H = 0.5;
+        const X = 0;
+        const Y = 0;
+        const Z = 0;
+
+        let vertices = [];
+        let indices = [];
+
+        let thetaDelta = 2 * Math.PI / resolution;
+        let angle = 0;
+        for(let i = 0; i < resolution + 2; ++i) {
+            vertices.push(
+                [R * Math.cos(angle) , Y , R * Math.sin(angle)]
+            );
+            vertices.push(
+                [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
+            );
+
+            if( i > 1 ) {
+                let [ul, ll, ur, lr] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
+                indices.push([ur, ul, lr]);
+                indices.push([ll, lr, ul]);
+            }
+
+            angle += thetaDelta;
+        }
+        for(let i = 1; i < resolution; ++i) {
+            indices.push([0, 2 * i, 2 * (i + 1)]);
+            indices.push([1, 2 * i + 1, 2 * (i + 1) + 1]);
+        }
 
         return {
             vertices: vertices,
