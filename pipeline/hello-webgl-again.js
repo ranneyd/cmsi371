@@ -80,10 +80,15 @@
         //     vertices: Shapes.toRawTriangleArray(Shapes.cylinder(30)),
         //     mode: gl.TRIANGLES
         // }
+        // {
+        //     color: { r: 0.5, g: 0.0, b: 0.0 },
+        //     vertices: Shapes.toRawLineArray(Shapes.cylinder(30)),
+        //     mode: gl.LINES
+        // },
         {
-            color: { r: 0.5, g: 0.0, b: 0.0 },
-            vertices: Shapes.toRawLineArray(Shapes.cylinder(30)),
-            mode: gl.LINES
+            color: { r: 0.0, g: 0.0, b: 0.5 },
+            vertices: Shapes.toRawTriangleArray(Shapes.roundedCylinder(0.7, 50)),
+            mode: gl.TRIANGLES
         }
     ];
 

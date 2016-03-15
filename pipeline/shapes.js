@@ -107,9 +107,9 @@ var Shapes = {
             );
 
             if( i > 1 ) {
-                let [ul, ll, ur, lr] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
-                indices.push([ur, ul, lr]);
-                indices.push([ll, lr, ul]);
+                let [nw, sw, ne, se] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
+                indices.push([ne, nw, se]);
+                indices.push([sw, se, nw]);
             }
 
             angle += thetaDelta;
@@ -123,6 +123,64 @@ var Shapes = {
             vertices: vertices,
             indices: indices
         };
+    },
+    roundedCylinder: function(upperToLower, resolution){
+        const A = upperToLower;
+        const B = 1
+        const H = 0.5;
+        const X = 0;
+        const Y = 0;
+        const Z = 0;
+
+        let vertices = [];
+        let indices = [];
+
+        let thetaDelta = 2 * Math.PI / resolution;
+        let angle = 0;
+        for(let i = 0; i < resolution + 2; ++i) {
+            vertices.push(
+                [A * Math.cos(angle) , Y , A * Math.sin(angle)]
+            );
+            vertices.push(
+                [B * Math.cos(angle) , Y - H , B * Math.sin(angle)]
+            );
+            vertices.push(
+                [A * Math.cos(angle) , Y - 2 * H , A * Math.sin(angle)]
+            );
+
+            if( i > 1 ) {
+                let verts = {
+                    upper: {
+                        left: 3 * (i - 1),
+                        right: 3 * i
+                    },
+                    middle: {
+                        left: 3 * (i - 1) + 1,
+                        right: 3 * i + 1
+                    },
+                    lower: {
+                        left: 3 * (i - 1) + 2,
+                        right: 3 * i +2
+                    }
+                }
+                indices.push([verts.upper.left, verts.middle.left, verts.upper.right]);
+                indices.push([verts.upper.right, verts.middle.left, verts.middle.right]);
+                indices.push([verts.middle.left, verts.lower.left, verts.middle.right]);
+                indices.push([verts.middle.right, verts.lower.left, verts.lower.right]);
+            }
+
+            angle += thetaDelta;
+        }
+        for(let i = 1; i < resolution; ++i) {
+            indices.push([0, 3 * i, 3 * (i + 1)]);
+            indices.push([2, 3 * i + 2, 3 * (i + 1) + 2]);
+        }
+
+        return {
+            vertices: vertices,
+            indices: indices
+        };
+
     },
 
     /*
