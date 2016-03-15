@@ -6,55 +6,50 @@
  */
 var Shapes = {
     /*
-     * Returns the vertices for a small icosahedron.
+     * Returns the vertices and indices for a small cone.
      */
-    icosahedron: function () {
-        // These variables are actually "constants" for icosahedron coordinates.
-        var X = 0.525731112119133606;
-        var Z = 0.850650808352039932;
+    cube: function () {
+        const [S, X, Y, Z] = [0.5, 0, 0, 0];
+        let vertices = [
+            // Front face
+            [X, Y, Z], //0 NW
+            [X, Y - S, Z], //1 SW
+            [X - S, Y, Z], //2 NE
+            [X - S, Y - S, Z], //3 SE
+            // Rear face
+            [X, Y, Z - S], //4 NW
+            [X, Y - S, Z - S], //5 SW
+            [X - S, Y, Z - S], //6 NE
+            [X - S, Y - S, Z - S], //7 SE
+        ];
 
+        let indices = [
+            // front
+            [0, 1, 2],
+            [1, 2, 3],
+            // rear
+            [6, 7, 5],
+            [6, 5, 4],
+            // top
+            [0, 2, 4],
+            [2, 6, 4],
+            // bottom,
+            [3, 1, 5],
+            [5, 7, 3],
+            // left
+            [0, 5, 1],
+            [4, 5, 0],
+            //right
+            [2, 3, 7],
+            [6, 2, 7]
+        ];
         return {
-            vertices: [
-                [ -X, 0.0, Z ],
-                [ X, 0.0, Z ],
-                [ -X, 0.0, -Z ],
-                [ X, 0.0, -Z ],
-                [ 0.0, Z, X ],
-                [ 0.0, Z, -X ],
-                [ 0.0, -Z, X ],
-                [ 0.0, -Z, -X ],
-                [ Z, X, 0.0 ],
-                [ -Z, X, 0.0 ],
-                [ Z, -X, 0.0 ],
-                [ -Z, -X, 0.0 ]
-            ],
-
-            indices: [
-                [ 1, 4, 0 ],
-                [ 4, 9, 0 ],
-                [ 4, 5, 9 ],
-                [ 8, 5, 4 ],
-                [ 1, 8, 4 ],
-                [ 1, 10, 8 ],
-                [ 10, 3, 8 ],
-                [ 8, 3, 5 ],
-                [ 3, 2, 5 ],
-                [ 3, 7, 2 ],
-                [ 3, 10, 7 ],
-                [ 10, 6, 7 ],
-                [ 6, 11, 7 ],
-                [ 6, 0, 11 ],
-                [ 6, 1, 0 ],
-                [ 10, 1, 6 ],
-                [ 11, 0, 9 ],
-                [ 2, 11, 9 ],
-                [ 5, 2, 9 ],
-                [ 11, 2, 7 ]
-            ]
-        };
+            vertices: vertices,
+            indices: indices
+        }
     },
     /*
-     * Returns the vertices for a small cone.
+     * Returns the vertices and indices for a small cone.
      */
     cone: function (faceCount) {
         const X = 0;
@@ -86,47 +81,9 @@ var Shapes = {
             indices: indices
         };
     },
-    cylinder: function(resolution) {
-        const R = 0.5;
-        const H = 0.5;
-        const X = 0;
-        const Y = 0;
-        const Z = 0;
-
-        let vertices = [];
-        let indices = [];
-
-        let thetaDelta = 2 * Math.PI / resolution;
-        let angle = 0;
-        for(let i = 0; i < resolution + 2; ++i) {
-            vertices.push(
-                [R * Math.cos(angle) , Y , R * Math.sin(angle)]
-            );
-            vertices.push(
-                [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
-            );
-
-            if( i > 1 ) {
-                let [nw, sw, ne, se] = [2 * i - 2, 2 * i - 1, 2 * i, 2 * i + 1]
-                indices.push([ne, nw, se]);
-                indices.push([sw, se, nw]);
-            }
-
-            angle += thetaDelta;
-        }
-        for(let i = 1; i < resolution; ++i) {
-            indices.push([0, 2 * i, 2 * (i + 1)]);
-            indices.push([1, 2 * i + 1, 2 * (i + 1) + 1]);
-        }
-
-        return {
-            vertices: vertices,
-            indices: indices
-        };
-    },
-    roundedCylinder: function(upperToLower, resolution){
-        const A = upperToLower;
-        const B = 1
+    frustomOfCone: function(upperToLower, resolution){
+        const A = upperToLower * 0.5;
+        const B = 0.5
         const H = 0.5;
         const X = 0;
         const Y = 0;
@@ -144,36 +101,23 @@ var Shapes = {
             vertices.push(
                 [B * Math.cos(angle) , Y - H , B * Math.sin(angle)]
             );
-            vertices.push(
-                [A * Math.cos(angle) , Y - 2 * H , A * Math.sin(angle)]
-            );
 
             if( i > 1 ) {
                 let verts = {
                     upper: {
-                        left: 3 * (i - 1),
-                        right: 3 * i
-                    },
-                    middle: {
-                        left: 3 * (i - 1) + 1,
-                        right: 3 * i + 1
+                        left: 2 * (i - 1),
+                        right: 2 * i
                     },
                     lower: {
-                        left: 3 * (i - 1) + 2,
-                        right: 3 * i +2
+                        left: 2 * (i - 1) + 1,
+                        right: 2 * i + 1
                     }
                 }
-                indices.push([verts.upper.left, verts.middle.left, verts.upper.right]);
-                indices.push([verts.upper.right, verts.middle.left, verts.middle.right]);
-                indices.push([verts.middle.left, verts.lower.left, verts.middle.right]);
-                indices.push([verts.middle.right, verts.lower.left, verts.lower.right]);
+                indices.push([verts.upper.left, verts.lower.left, verts.upper.right]);
+                indices.push([verts.upper.right, verts.lower.left, verts.lower.right]);
             }
 
             angle += thetaDelta;
-        }
-        for(let i = 1; i < resolution; ++i) {
-            indices.push([0, 3 * i, 3 * (i + 1)]);
-            indices.push([2, 3 * i + 2, 3 * (i + 1) + 2]);
         }
 
         return {
