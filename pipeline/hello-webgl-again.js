@@ -95,10 +95,15 @@
         //     vertices: Shapes.toRawLineArray(Shapes.frustomOfCone(0.7, 30)),
         //     mode: gl.LINES
         // },
+        // {
+        //     color: { r: 0.5, g: 0.0, b: 0.0 },
+        //     vertices: Shapes.toRawTriangleArray(Shapes.cube()),
+        //     mode: gl.TRIANGLES
+        // },
         {
             color: { r: 0.5, g: 0.0, b: 0.0 },
-            vertices: Shapes.toRawTriangleArray(Shapes.cube()),
-            mode: gl.TRIANGLES
+            vertices: Shapes.toRawLineArray(Shapes.snake(30, 1, 0, 0)),
+            mode: gl.LINES
         },
     ];
 

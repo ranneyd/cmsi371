@@ -126,6 +126,42 @@ var Shapes = {
         };
 
     },
+    /*
+     * Returns the vertices and indices for a cylinder that follows 
+     * a cubic curve of form ax^3 + bx^2 + cx for -1 < x < 1
+     */
+    snake: function(resolution, A, B, C) {
+        let y = x => {
+            return A * x * x * x + B * x * x + C * x;
+        };
+        let dydx = x => {
+            return 3 * A * x * x + 2 * B * x + C;
+        }
+
+        let veritces = [];
+        let indices = [];
+
+        const [X0, X1, Y, Z, R] = [-1, 1, 0, 0, 0.5];
+
+        let xDelta = (X1 - X0)/resolution;
+        for(let x = X0, x < X1; x+= xDelta){
+
+            let ourY = y(x);
+            let ourDyDx = dydx(x);
+
+            let thetaDelta = 2 * Math.PI / resolution;
+            let angle = 0;
+            for(let j = 0; j <= resolution + 1; ++j) {
+                vertices.push(
+                    [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
+                );
+                if( i > 1 ) {
+                    indices.push([0, i - 1, i]);
+                }
+                angle += thetaDelta;
+            }
+        }
+    },
 
     /*
      * Utility function for turning indexed vertices into a "raw" coordinate array
