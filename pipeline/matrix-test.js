@@ -35,54 +35,51 @@ $(function () {
         equal(empty.height, 0, "empty height");
         equal(empty.width, 0, "empty width");
 
+
+        let dupe = Matrix.duplicate(m);
+        deepEqual(dupe, m, "Duplication equality");
+        deepEqual(dupe.width, m.width, "Duplication width equality");
+        deepEqual(dupe.height, m.height, "Duplication height equality");
+
+        dupe.copy(nonSquare);
+        deepEqual(dupe, nonSquare, "Copy equality");
+        deepEqual(dupe.width, nonSquare.width, "Copy width equality");
+        deepEqual(dupe.height, nonSquare.height, "Copy height equality");
+
     });
 
-    // test("Addition and Subtraction", function () {
-    //     var v1 = new Vector(4, 5),
-    //         v2 = new Vector(-10, 4),
-    //         vresult = v1.add(v2);
+    test("Addition and Subtraction", function () {
+        let m1 = new Matrix([[1,2,3],[4,5,6],[7,8,9]]);
+        let m2 = new Matrix([[4,5,6],[7,8,9],[10,11,12]]);
+        let sum = Matrix.add(m1, m2);
+        let difference = Matrix.subtract(m1, m2);
 
-    //     equal(vresult.dimensions(), 2, "Vector sum size check");
-    //     equal(vresult.x(), -6, "Vector sum first element");
-    //     equal(vresult.y(), 9, "Vector sum second element");
+        deepEqual(sum.array2d, [[5,7,9],[11,13,15],[17,19,21]], "Matrix sum");
+        deepEqual(difference.array2d, [[-3,-3,-3],[-3,-3,-3],[-3,-3,-3]], "Matrix difference");
 
-    //     v1 = new Vector(0, -2, 3, 5);
-    //     v2 = new Vector(-2, 1, 0, 7);
-    //     vresult = v1.subtract(v2);
-    //     equal(vresult.dimensions(), 4, "Vector difference size check");
-    //     equal(vresult.x(), 2, "Vector difference first element");
-    //     equal(vresult.y(), -3, "Vector difference second element");
-    //     equal(vresult.z(), 3, "Vector difference third element");
-    //     equal(vresult.w(), -2, "Vector difference fourth element");
+        //errors
+        let m3 = new Matrix([[4,5,6]]);
+        throws(
+            () => {
+                return Matrix.add(m1, m3);
+            }
+            ,"Addition without same dimensions"
+        );
+    });
 
-    //     // Check for errors.
-    //     v1 = new Vector(5, 8, 10, 2);
-    //     v2 = new Vector(1, 2, 2);
+    test("Scaling", function () {
+        let m = new Matrix([[1,2,3],[4,5,6],[7,8,9],[10,11,12]]);
+        let scaledM = Matrix.scale(m, 5);
+        
+        deepEqual(scaledM.array, [5,10,15,20,25,30,35,40,45,50,55,60], "Scaling by 5");
+        deepEqual(scaledM.height, 4, "Scaling by 5 height");
+        deepEqual(scaledM.width, 3, "Scaling by 5 width");
 
-    //     // We can actually check for a *specific* exception, but
-    //     // we won't go that far for now.
-    //     throws(
-    //         function () {
-    //             return v1.add(v2);
-    //         },
-    //         "Check for matrixs of different sizes"
-    //     );
-    // });
-
-    // test("Scalar Multiplication and Division", function () {
-    //     var v = new Vector(8, 2, 3),
-    //         vresult = v.multiply(2);
-
-    //     equal(vresult.x(), 16, "Vector scalar multiplication first element");
-    //     equal(vresult.y(), 4, "Vector scalar multiplication second element");
-    //     equal(vresult.z(), 6, "Vector scalar multiplication third element");
-
-    //     vresult = vresult.divide(4);
-
-    //     equal(vresult.x(), 4, "Vector scalar division first element");
-    //     equal(vresult.y(), 1, "Vector scalar division second element");
-    //     equal(vresult.z(), 1.5, "Vector scalar division third element");
-    // });
+        let zeroM = Matrix.scale(m, 0);
+        deepEqual(zeroM.array, [0,0,0,0,0,0,0,0,0,0,0,0], "Scaling by 0");
+        deepEqual(zeroM.height, 4, "Scaling by 0 height");
+        deepEqual(zeroM.width, 3, "Scaling by 0 width");
+    });
 
     // test("Dot Product", function () {
     //     var v1 = new Vector(-5, -2),
