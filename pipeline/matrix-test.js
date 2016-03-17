@@ -5,197 +5,195 @@ $(function () {
 
     // This suite checks instantiation basics.
     test("Creation and Data Access", function () {
-        var v = new Vector(5, 6, 3);
+        let identity = new Matrix();
 
-        equal(v.dimensions(), 3, "Vector size");
-        equal(v.elements[0], 5, "First element by index");
-        equal(v.elements[1], 6, "Second element by index");
-        equal(v.elements[2], 3, "Third element by index");
-        equal(v.x(), 5, "First element by coordinate");
-        equal(v.y(), 6, "Second element by coordinate");
-        equal(v.z(), 3, "Third element by coordinate");
+        deepEqual(identity.array, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], "Identity Array");
+        deepEqual(identity.array2d, [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], "Identity 2d Array");
+        equal(identity.height, 4, "Identity height");
+        equal(identity.width, 4, "Identity width");
 
-        v = new Vector(300, 200);
+        let m = new Matrix([[1,2,3],[4,5,6],[7,8,9]]);
 
-        equal(v.dimensions(), 2, "Vector size");
-        equal(v.elements[0], 300, "First element by index");
-        equal(v.elements[1], 200, "Second element by index");
-        equal(v.x(), 300, "First element by coordinate");
-        equal(v.y(), 200, "Second element by coordinate");
+        deepEqual(m.array, [1,2,3,4,5,6,7,8,9], "Matrix array");
+        deepEqual(m.array2d, [[1,2,3],[4,5,6],[7,8,9]], "Matrix 2d array");
 
-        v = new Vector(3, 2, 1, 2);
+        equal(m.height, 3, "Matrix height");
+        equal(m.width, 3, "Matrix width");
 
-        equal(v.dimensions(), 4, "Vector size");
-        equal(v.elements[0], 3, "First element by index");
-        equal(v.elements[1], 2, "Second element by index");
-        equal(v.elements[2], 1, "Third element by index");
-        equal(v.elements[3], 2, "Fourth element by index");
-        equal(v.x(), 3, "First element by coordinate");
-        equal(v.y(), 2, "Second element by coordinate");
-        equal(v.z(), 1, "Third element by coordinate");
-        equal(v.w(), 2, "Fourth element by coordinate");
+        let nonSquare = new Matrix([[1,2,3],[4,5,6],[7,8,9],[10, 11, 12]]);
 
-        v = new Vector();
-        equal(v.dimensions(), 0, "Empty matrix (boundary case)");
+        deepEqual(nonSquare.array, [1,2,3,4,5,6,7,8,9,10,11,12], "nonSquare array");
+        deepEqual(nonSquare.array2d, [[1,2,3],[4,5,6],[7,8,9],[10, 11, 12]], "nonSquare 2d array");
+
+        equal(nonSquare.height, 4, "nonSquare height");
+        equal(nonSquare.width, 3, "nonSquare width");
+
+        let empty = new Matrix([]);
+
+        deepEqual(empty.array, [], "empty Array");
+        deepEqual(empty.array2d, [], "empty 2d Array");
+        equal(empty.height, 0, "empty height");
+        equal(empty.width, 0, "empty width");
+
     });
 
-    test("Addition and Subtraction", function () {
-        var v1 = new Vector(4, 5),
-            v2 = new Vector(-10, 4),
-            vresult = v1.add(v2);
+    // test("Addition and Subtraction", function () {
+    //     var v1 = new Vector(4, 5),
+    //         v2 = new Vector(-10, 4),
+    //         vresult = v1.add(v2);
 
-        equal(vresult.dimensions(), 2, "Vector sum size check");
-        equal(vresult.x(), -6, "Vector sum first element");
-        equal(vresult.y(), 9, "Vector sum second element");
+    //     equal(vresult.dimensions(), 2, "Vector sum size check");
+    //     equal(vresult.x(), -6, "Vector sum first element");
+    //     equal(vresult.y(), 9, "Vector sum second element");
 
-        v1 = new Vector(0, -2, 3, 5);
-        v2 = new Vector(-2, 1, 0, 7);
-        vresult = v1.subtract(v2);
-        equal(vresult.dimensions(), 4, "Vector difference size check");
-        equal(vresult.x(), 2, "Vector difference first element");
-        equal(vresult.y(), -3, "Vector difference second element");
-        equal(vresult.z(), 3, "Vector difference third element");
-        equal(vresult.w(), -2, "Vector difference fourth element");
+    //     v1 = new Vector(0, -2, 3, 5);
+    //     v2 = new Vector(-2, 1, 0, 7);
+    //     vresult = v1.subtract(v2);
+    //     equal(vresult.dimensions(), 4, "Vector difference size check");
+    //     equal(vresult.x(), 2, "Vector difference first element");
+    //     equal(vresult.y(), -3, "Vector difference second element");
+    //     equal(vresult.z(), 3, "Vector difference third element");
+    //     equal(vresult.w(), -2, "Vector difference fourth element");
 
-        // Check for errors.
-        v1 = new Vector(5, 8, 10, 2);
-        v2 = new Vector(1, 2, 2);
+    //     // Check for errors.
+    //     v1 = new Vector(5, 8, 10, 2);
+    //     v2 = new Vector(1, 2, 2);
 
-        // We can actually check for a *specific* exception, but
-        // we won't go that far for now.
-        throws(
-            function () {
-                return v1.add(v2);
-            },
-            "Check for matrixs of different sizes"
-        );
-    });
+    //     // We can actually check for a *specific* exception, but
+    //     // we won't go that far for now.
+    //     throws(
+    //         function () {
+    //             return v1.add(v2);
+    //         },
+    //         "Check for matrixs of different sizes"
+    //     );
+    // });
 
-    test("Scalar Multiplication and Division", function () {
-        var v = new Vector(8, 2, 3),
-            vresult = v.multiply(2);
+    // test("Scalar Multiplication and Division", function () {
+    //     var v = new Vector(8, 2, 3),
+    //         vresult = v.multiply(2);
 
-        equal(vresult.x(), 16, "Vector scalar multiplication first element");
-        equal(vresult.y(), 4, "Vector scalar multiplication second element");
-        equal(vresult.z(), 6, "Vector scalar multiplication third element");
+    //     equal(vresult.x(), 16, "Vector scalar multiplication first element");
+    //     equal(vresult.y(), 4, "Vector scalar multiplication second element");
+    //     equal(vresult.z(), 6, "Vector scalar multiplication third element");
 
-        vresult = vresult.divide(4);
+    //     vresult = vresult.divide(4);
 
-        equal(vresult.x(), 4, "Vector scalar division first element");
-        equal(vresult.y(), 1, "Vector scalar division second element");
-        equal(vresult.z(), 1.5, "Vector scalar division third element");
-    });
+    //     equal(vresult.x(), 4, "Vector scalar division first element");
+    //     equal(vresult.y(), 1, "Vector scalar division second element");
+    //     equal(vresult.z(), 1.5, "Vector scalar division third element");
+    // });
 
-    test("Dot Product", function () {
-        var v1 = new Vector(-5, -2),
-            v2 = new Vector(-3, 4);
+    // test("Dot Product", function () {
+    //     var v1 = new Vector(-5, -2),
+    //         v2 = new Vector(-3, 4);
 
-        equal(v1.dot(v2), 7, "2D dot product");
+    //     equal(v1.dot(v2), 7, "2D dot product");
 
-        // Try for a perpendicular.
-        v1 = new Vector(Math.sqrt(2) / 2, Math.sqrt(2) / 2);
-        v2 = new Vector(-Math.sqrt(2) / 2, Math.sqrt(2) / 2);
-        equal(v1.dot(v2), 0, "Perpendicular 2D dot product");
+    //     // Try for a perpendicular.
+    //     v1 = new Vector(Math.sqrt(2) / 2, Math.sqrt(2) / 2);
+    //     v2 = new Vector(-Math.sqrt(2) / 2, Math.sqrt(2) / 2);
+    //     equal(v1.dot(v2), 0, "Perpendicular 2D dot product");
 
-        // Try 3D.
-        v1 = new Vector(3, 2, 5);
-        v2 = new Vector(4, -1, 3);
-        equal(v1.dot(v2), 25, "3D dot product");
+    //     // Try 3D.
+    //     v1 = new Vector(3, 2, 5);
+    //     v2 = new Vector(4, -1, 3);
+    //     equal(v1.dot(v2), 25, "3D dot product");
 
-        // And 4D.
-        v1 = new Vector(2, 2, 4, 8);
-        v2 = new Vector(-1, 7, 0, 20);
-        equal(v1.dot(v2), 172, "4D dot product");
+    //     // And 4D.
+    //     v1 = new Vector(2, 2, 4, 8);
+    //     v2 = new Vector(-1, 7, 0, 20);
+    //     equal(v1.dot(v2), 172, "4D dot product");
 
-        // Check for errors.
-        v1 = new Vector(4, 2);
-        v2 = new Vector(3, 9, 1);
+    //     // Check for errors.
+    //     v1 = new Vector(4, 2);
+    //     v2 = new Vector(3, 9, 1);
 
-        // We can actually check for a *specific* exception, but
-        // we won't go that far for now.
-        throws(
-            function () {
-                return v1.dot(v2);
-            },
-            "Check for matrixs of different sizes"
-        );
-    });
+    //     // We can actually check for a *specific* exception, but
+    //     // we won't go that far for now.
+    //     throws(
+    //         function () {
+    //             return v1.dot(v2);
+    //         },
+    //         "Check for matrixs of different sizes"
+    //     );
+    // });
 
-    test("Cross Product", function () {
-        var v1 = new Vector(3, 4),
-            v2 = new Vector(1, 2),
-            vresult;
+    // test("Cross Product", function () {
+    //     var v1 = new Vector(3, 4),
+    //         v2 = new Vector(1, 2),
+    //         vresult;
 
-        // The cross product is restricted to 3D, so we start
-        // with an error check.
-        throws(
-            function () {
-                return v1.cross(v2);
-            },
-            "Check for non-3D matrixs"
-        );
+    //     // The cross product is restricted to 3D, so we start
+    //     // with an error check.
+    //     throws(
+    //         function () {
+    //             return v1.cross(v2);
+    //         },
+    //         "Check for non-3D matrixs"
+    //     );
 
-        // Yeah, this is a bit of a trivial case.  But it at least
-        // establishes the right-handedness of a cross-product.
-        v1 = new Vector(1, 0, 0);
-        v2 = new Vector(0, 1, 0);
-        vresult = v1.cross(v2);
+    //     // Yeah, this is a bit of a trivial case.  But it at least
+    //     // establishes the right-handedness of a cross-product.
+    //     v1 = new Vector(1, 0, 0);
+    //     v2 = new Vector(0, 1, 0);
+    //     vresult = v1.cross(v2);
 
-        equal(vresult.x(), 0, "Cross product first element");
-        equal(vresult.y(), 0, "Cross product second element");
-        equal(vresult.z(), 1, "Cross product third element");
+    //     equal(vresult.x(), 0, "Cross product first element");
+    //     equal(vresult.y(), 0, "Cross product second element");
+    //     equal(vresult.z(), 1, "Cross product third element");
 
-        // This one shows that switching matrix order produces
-        // the opposite-pointing normal.
-        vresult = v2.cross(v1);
+    //     // This one shows that switching matrix order produces
+    //     // the opposite-pointing normal.
+    //     vresult = v2.cross(v1);
 
-        equal(vresult.x(), 0, "Cross product first element");
-        equal(vresult.y(), 0, "Cross product second element");
-        equal(vresult.z(), -1, "Cross product third element");
-    });
+    //     equal(vresult.x(), 0, "Cross product first element");
+    //     equal(vresult.y(), 0, "Cross product second element");
+    //     equal(vresult.z(), -1, "Cross product third element");
+    // });
 
-    test("Magnitude and Unit Vectors", function () {
-        var v = new Vector(3, 4);
+    // test("Magnitude and Unit Vectors", function () {
+    //     var v = new Vector(3, 4);
 
-        // The classic example.
-        equal(v.magnitude(), 5, "2D magnitude check");
+    //     // The classic example.
+    //     equal(v.magnitude(), 5, "2D magnitude check");
 
-        // Kind of a cheat, but still tests the third dimension.
-        v = new Vector(5, 0, 12);
-        equal(v.magnitude(), 13, "3D magnitude check");
+    //     // Kind of a cheat, but still tests the third dimension.
+    //     v = new Vector(5, 0, 12);
+    //     equal(v.magnitude(), 13, "3D magnitude check");
 
-        // Now for unit matrixs.
-        v = (new Vector(3, 4)).unit();
+    //     // Now for unit matrixs.
+    //     v = (new Vector(3, 4)).unit();
 
-        equal(v.magnitude(), 1, "2D unit matrix check");
-        equal(v.x(), 3 / 5, "2D unit matrix first element");
-        equal(v.y(), 4 / 5, "2D unit matrix second element");
+    //     equal(v.magnitude(), 1, "2D unit matrix check");
+    //     equal(v.x(), 3 / 5, "2D unit matrix first element");
+    //     equal(v.y(), 4 / 5, "2D unit matrix second element");
 
-        v = (new Vector(0, -7, 24)).unit();
+    //     v = (new Vector(0, -7, 24)).unit();
 
-        equal(v.magnitude(), 1, "3D unit matrix check");
-        equal(v.x(), 0, "3D unit matrix first element");
-        equal(v.y(), -7 / 25, "3D unit matrix second element");
-        equal(v.z(), 24 / 25, "3D unit matrix third element");
-    });
+    //     equal(v.magnitude(), 1, "3D unit matrix check");
+    //     equal(v.x(), 0, "3D unit matrix first element");
+    //     equal(v.y(), -7 / 25, "3D unit matrix second element");
+    //     equal(v.z(), 24 / 25, "3D unit matrix third element");
+    // });
 
-    test("Projection", function () {
-        var v = new Vector(3, 3, 0),
-            vresult = v.projection(new Vector(5, 0, 0));
+    // test("Projection", function () {
+    //     var v = new Vector(3, 3, 0),
+    //         vresult = v.projection(new Vector(5, 0, 0));
 
-        equal(vresult.magnitude(), 3, "3D matrix projection magnitude check");
-        equal(vresult.x(), 3, "3D matrix projection first element");
-        equal(vresult.y(), 0, "3D matrix projection second element");
-        equal(vresult.z(), 0, "3D matrix projection third element");
+    //     equal(vresult.magnitude(), 3, "3D matrix projection magnitude check");
+    //     equal(vresult.x(), 3, "3D matrix projection first element");
+    //     equal(vresult.y(), 0, "3D matrix projection second element");
+    //     equal(vresult.z(), 0, "3D matrix projection third element");
 
-        // Error check: projection only applies to matrixs with the same
-        // number of dimensions.
-        throws(
-            function () {
-                (new Vector(5, 2)).projection(new Vector(9, 8, 1));
-            },
-            "Ensure that projection applies only to matrixs with the same number of dimensions"
-        );
-    });
+    //     // Error check: projection only applies to matrixs with the same
+    //     // number of dimensions.
+    //     throws(
+    //         function () {
+    //             (new Vector(5, 2)).projection(new Vector(9, 8, 1));
+    //         },
+    //         "Ensure that projection applies only to matrixs with the same number of dimensions"
+    //     );
+    // });
 
 });
