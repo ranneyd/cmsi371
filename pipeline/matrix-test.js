@@ -80,7 +80,25 @@ $(function () {
         deepEqual(otherNonSquare2.array2d, [[1, 2, 3],[4, 5, 6]], "Other Constructor (non square) 2d Array 2");
         equal(otherNonSquare2.height, 2, "Other Constructor (non square) height 2");
         equal(otherNonSquare2.width, 3, "Other Constructor (non square) width 2");
-
+        
+        throws(
+            () => {
+                let badMatrix = new Matrix([[1,2], [3]]);
+            }
+            ,"Matrix construction: poorly formed array"
+        );
+        throws(
+            () => {
+                let badMatrix = new Matrix([1,2,3,4],1,2);
+            }
+            ,"Matrix construction: incompatible height/width"
+        );
+        throws(
+            () => {
+                let badMatrix = new Matrix([1,2,3,4],1);
+            }
+            ,"Matrix construction: width, no height"
+        );
     });
 
     test("Addition and Subtraction", function () {
@@ -102,15 +120,15 @@ $(function () {
         );
     });
 
-    test("Scaling", function () {
+    test("Scalar Multiplication", function () {
         let m = new Matrix([[1,2,3],[4,5,6],[7,8,9],[10,11,12]]);
-        let scaledM = Matrix.scale(m, 5);
+        let scaledM = Matrix.scalarMultiply(m, 5);
         
         deepEqual(scaledM.array, [5,10,15,20,25,30,35,40,45,50,55,60], "Scaling by 5");
         deepEqual(scaledM.height, 4, "Scaling by 5 height");
         deepEqual(scaledM.width, 3, "Scaling by 5 width");
 
-        let zeroM = Matrix.scale(m, 0);
+        let zeroM = Matrix.scalarMultiply(m, 0);
         deepEqual(zeroM.array, [0,0,0,0,0,0,0,0,0,0,0,0], "Scaling by 0");
         deepEqual(zeroM.height, 4, "Scaling by 0 height");
         deepEqual(zeroM.width, 3, "Scaling by 0 width");
@@ -159,15 +177,19 @@ $(function () {
         deepEqual(product, expected, "Square multiplication (other way)");
 
         let m6 = new Matrix([1,2,3,4,5,6], 3, 2);
-        let m7 = new Matrix([1,2,3,4,5,6], 2, 3);
+        let m7 = new Matrix([1,2,3,4,5,6,7,8,9,10,11,12], 4, 3);
 
-        expected = new Matrix([22,28,49,64], 2, 2);
+        expected = new Matrix([38,44,50,56,83,98,113,128], 4, 2);
         product = Matrix.multiply(m6, m7);
 
+        deepEqual(product, expected, "3x2, 4x3 multiplication");
 
-        deepEqual(product.height, expected.height, "3x2, 2x3 height");
-        deepEqual(product.width, expected.width, "3x2, 2x3 width");
-        deepEqual(product, expected, "3x2, 2x3 multiplication");
+        throws(
+            () => {
+                return Matrix.multiply(m7,m6);
+            }
+            ,"Incompatible dimensions"
+        );
     });
     test("Determinant", function() {
         let identity = new Matrix();
@@ -184,28 +206,54 @@ $(function () {
 
         let m4 = new Matrix([[5,2,3,4],[1,4,3,4],[7,2,3,4],[1,2,3,2]]);
         deepEqual(m4.determinant(), 24, "4x4 determinant");
+
+        throws(
+            () => {
+                return (new Matrix([1,2,3], 3, 1)).determinant();
+            }
+            ,"Non-square determinant"
+        );
     });
     test("Translation", function() {
         let move111 = Matrix.translate(1,1,1);
-        deepEqual(move111(0,0,0).array, [1,1,1,1], "Move origin by 1,1,1");
-        deepEqual(move111(1,1,1).array, [2,2,2,1], "Move 1,1,1 by 1,1,1");
-        deepEqual(move111(-1,-1,-1).array, [0,0,0,1], "Move -1,-1,-1 by 1,1,1");
+        let expected = new Matrix([1,0,0,1,0,1,0,1,0,0,1,1,0,0,0,1],4,4);
+        deepEqual(move111, expected, "Move by 1,1,1");
 
         let move222 = Matrix.translate(2,2,2);
-        deepEqual(move222(0,0,0).array, [2,2,2,1], "Move origin by 2,2,2");
-        deepEqual(move222(1,1,1).array, [3,3,3,1], "Move 1,1,1 by 2,2,2");
-        deepEqual(move222(-1,-1,-1).array, [1,1,1,1], "Move -1,-1,-1 by 2,2,2");
+        expected = new Matrix([1,0,0,2,0,1,0,2,0,0,1,2,0,0,0,1],4,4);
+        deepEqual(move222, expected, "Move by 2,2,2");
 
         let negMove111 = Matrix.translate(-1,-1,-1);
-        deepEqual(negMove111(0,0,0).array, [-1,-1,-1,1], "Move origin by -1,-1,-1");
-        deepEqual(negMove111(1,1,1).array, [0,0,0,1], "Move 1,1,1 by -1,-1,-1");
-        deepEqual(negMove111(-1,-1,-1).array, [-2,-2,-2,1], "Move -1,-1,-1 by -1,-1,-1");
+        expected = new Matrix([1,0,0,-1,0,1,0,-1,0,0,1,-1,0,0,0,1],4,4);
+        deepEqual(negMove111, expected, "Move by -1,-1,-1");
 
+        let move = Matrix.translate(42,-69,47);
+        expected = new Matrix([1,0,0,42,0,1,0,-69,0,0,1,47,0,0,0,1],4,4);
+        deepEqual(move, expected, "Move by 42,-69,47");
+    });
+    test("Scaling", function() {
+        let scale111 = Matrix.scale(1,1,1);
+        let expected = new Matrix([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],4,4);
+        deepEqual(scale111, expected, "Scale by 1,1,1");
 
-        let move = Matrix.translate(42,-69,153);
-        deepEqual(move(0,0,0).array, [42,-69,153,1], "Move origin by 42,-69,153");
-        deepEqual(move(1,1,1).array, [43,-68,154,1], "Move 1,1,1 by 42,-69,153");
-        deepEqual(move(-1,-1,-1).array, [41,-70,152,1], "Move -1,-1,-1 by 42,-69,153");
+        let scale222 = Matrix.scale(2,2,2);
+        expected = new Matrix([2,0,0,0,0,2,0,0,0,0,2,0,0,0,0,1],4,4);
+        deepEqual(scale222, expected, "Scale by 2,2,2");
 
+        let scaleHalf = Matrix.scale(0.5,0.5,0.5);
+        expected = new Matrix([0.5,0,0,0,0,0.5,0,0,0,0,0.5,0,0,0,0,1],4,4);
+        deepEqual(scaleHalf, expected, "Scale by 0.5, 0.5, 0.5");
+
+        let scale = Matrix.scale(1,2,3);
+        expected = new Matrix([1,0,0,0,0,2,0,0,0,0,3,0,0,0,0,1],4,4);
+        deepEqual(scale, expected, "Scale by 1,2,3");
+
+        //errors
+        throws(
+            () => {
+                return Matrix.scale(-1,-1,-1);
+            }
+            ,"Negative scaling"
+        );
     });
 });

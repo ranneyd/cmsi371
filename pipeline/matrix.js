@@ -94,10 +94,10 @@ class Matrix {
         }
         return matrix;
     }
-    static scale(a, scalar){
-        return Matrix.duplicate(a).scale( scalar );
+    static scalarMultiply(a, scalar){
+        return Matrix.duplicate(a).scalarMultiply( scalar );
     }
-    scale( scalar ) {
+    scalarMultiply( scalar ) {
         let length = this.matrix.length;
         for(let i = 0; i < length; ++i) {
             this.matrix[i] *= scalar;
@@ -203,6 +203,10 @@ class Matrix {
     }
     // Returns a matrix that translates by sx, sy, and sz
     static scale(sx, sy, sz) {
+        if(sx < 0 || sy < 0 || sz < 0) {
+            let msg = "Cannot scale by a negative value";
+            throw new Error( msg );
+        }
         return new Matrix([sx,0,0,0,0,sy,0,0,0,0,sz,0,0,0,0,1],4,4);
     }
     // // Returns a matrix that rotates around a vector defined by rz, ry, and rz
