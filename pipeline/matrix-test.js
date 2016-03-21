@@ -9,6 +9,7 @@ $(function () {
 
         deepEqual(identity.array, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], "Identity Array");
         deepEqual(identity.array2d, [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], "Identity 2d Array");
+        deepEqual(identity.array2d, [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]], "Identity column major");
         equal(identity.height, 4, "Identity height");
         equal(identity.width, 4, "Identity width");
 
@@ -16,14 +17,26 @@ $(function () {
 
         deepEqual(m.array, [1,2,3,4,5,6,7,8,9], "Matrix array");
         deepEqual(m.array2d, [[1,2,3],[4,5,6],[7,8,9]], "Matrix 2d array");
+        deepEqual(m.colMajor, [[1,4,7],[2,5,8],[3,6,9]], "Matrix column major");
 
         equal(m.height, 3, "Matrix height");
         equal(m.width, 3, "Matrix width");
+
+        let single = new Matrix([[42]]);
+
+        deepEqual(single.array, [42], "1x1 array");
+        deepEqual(single.array2d, [[42]], "1x1 2d array");
+        deepEqual(single.colMajor, [[42]], "1x1 column major");
+
+        equal(single.height, 1, "1x1 height");
+        equal(single.width, 1, "1x1 width");
 
         let nonSquare = new Matrix([[1,2,3],[4,5,6],[7,8,9],[10, 11, 12]]);
 
         deepEqual(nonSquare.array, [1,2,3,4,5,6,7,8,9,10,11,12], "nonSquare array");
         deepEqual(nonSquare.array2d, [[1,2,3],[4,5,6],[7,8,9],[10, 11, 12]], "nonSquare 2d array");
+        deepEqual(nonSquare.colMajor, [[1,4,7,10],[2,5,8,11],[3,6,9,12]], "nonSquare column major");
+
 
         equal(nonSquare.height, 4, "nonSquare height");
         equal(nonSquare.width, 3, "nonSquare width");
@@ -31,7 +44,8 @@ $(function () {
         let empty = new Matrix([]);
 
         deepEqual(empty.array, [], "empty Array");
-        deepEqual(empty.array2d, [], "empty 2d Array");
+        deepEqual(empty.array2d, [[]], "empty 2d Array");
+        deepEqual(empty.colMajor, [[]], "empty column major");
         equal(empty.height, 0, "empty height");
         equal(empty.width, 0, "empty width");
 
@@ -45,6 +59,27 @@ $(function () {
         deepEqual(dupe, nonSquare, "Copy equality");
         deepEqual(dupe.width, nonSquare.width, "Copy width equality");
         deepEqual(dupe.height, nonSquare.height, "Copy height equality");
+
+        let otherConstructor = new Matrix([1, 2, 3, 4], 2, 2);
+
+        deepEqual(otherConstructor.array, [1, 2, 3, 4], "Other Constructor Array");
+        deepEqual(otherConstructor.array2d, [[1,2], [3,4]], "Other Constructor 2d Array");
+        equal(otherConstructor.height, 2, "Other Constructor height");
+        equal(otherConstructor.width, 2, "Other Constructor width");
+
+        let otherNonSquare = new Matrix([1, 2, 3, 4], 1, 4);
+
+        deepEqual(otherNonSquare.array, [1, 2, 3, 4], "Other Constructor (non square) Array");
+        deepEqual(otherNonSquare.array2d, [[1],[2], [3],[4]], "Other Constructor (non square) 2d Array");
+        equal(otherNonSquare.height, 4, "Other Constructor (non square) height");
+        equal(otherNonSquare.width, 1, "Other Constructor (non square) width");
+
+        let otherNonSquare2 = new Matrix([1, 2, 3, 4, 5, 6], 3, 2);
+
+        deepEqual(otherNonSquare2.array, [1, 2, 3, 4, 5, 6], "Other Constructor (non square) Array 2");
+        deepEqual(otherNonSquare2.array2d, [[1, 2, 3],[4, 5, 6]], "Other Constructor (non square) 2d Array 2");
+        equal(otherNonSquare2.height, 2, "Other Constructor (non square) height 2");
+        equal(otherNonSquare2.width, 3, "Other Constructor (non square) width 2");
 
     });
 
@@ -80,117 +115,97 @@ $(function () {
         deepEqual(zeroM.height, 4, "Scaling by 0 height");
         deepEqual(zeroM.width, 3, "Scaling by 0 width");
     });
+    test("Multiplication", function () {
+        let identity = new Matrix();
+        let m1 = new Matrix([[1,2,3,4],[5,6,7,8],[9,10,11,12],[13,14,15,16]]);
+        let product = Matrix.multiply(m1, identity);
 
-    // test("Dot Product", function () {
-    //     var v1 = new Vector(-5, -2),
-    //         v2 = new Vector(-3, 4);
+        deepEqual(product.height, m1.height, "Identity multiplication height");
+        deepEqual(product.width, m1.width, "Identity multiplication width");
+        deepEqual(product, m1, "Identity multiplication");
 
-    //     equal(v1.dot(v2), 7, "2D dot product");
+        let m2 = new Matrix([1,2,3,4], 4, 1);
+        let m3 = new Matrix([1,2,3,4], 1, 4);
+        let expected = new Matrix([30], 1,1);
 
-    //     // Try for a perpendicular.
-    //     v1 = new Vector(Math.sqrt(2) / 2, Math.sqrt(2) / 2);
-    //     v2 = new Vector(-Math.sqrt(2) / 2, Math.sqrt(2) / 2);
-    //     equal(v1.dot(v2), 0, "Perpendicular 2D dot product");
+        product = Matrix.multiply(m2, m3);
 
-    //     // Try 3D.
-    //     v1 = new Vector(3, 2, 5);
-    //     v2 = new Vector(4, -1, 3);
-    //     equal(v1.dot(v2), 25, "3D dot product");
+        deepEqual(product.height, expected.height, "Row multiplication height");
+        deepEqual(product.width, expected.width, "Row multiplication width");
+        deepEqual(product, expected, "Row multiplication");
 
-    //     // And 4D.
-    //     v1 = new Vector(2, 2, 4, 8);
-    //     v2 = new Vector(-1, 7, 0, 20);
-    //     equal(v1.dot(v2), 172, "4D dot product");
+        expected = new Matrix([[1,2,3,4], [2,4,6,8], [3,6,9,12], [4,8,12,16]]);
+        product = Matrix.multiply(m3, m2);
 
-    //     // Check for errors.
-    //     v1 = new Vector(4, 2);
-    //     v2 = new Vector(3, 9, 1);
+        deepEqual(product.height, expected.height, "Row multiplication (other way) height");
+        deepEqual(product.width, expected.width, "Row multiplication (other way) width");
+        deepEqual(product, expected, "Row multiplication (other way)");
 
-    //     // We can actually check for a *specific* exception, but
-    //     // we won't go that far for now.
-    //     throws(
-    //         function () {
-    //             return v1.dot(v2);
-    //         },
-    //         "Check for matrixs of different sizes"
-    //     );
-    // });
+        let m4 = new Matrix([[1,1,1],[2,2,2],[3,3,3]]);
+        let m5 = new Matrix([[4,4,4],[5,5,5],[6,6,6]]);
 
-    // test("Cross Product", function () {
-    //     var v1 = new Vector(3, 4),
-    //         v2 = new Vector(1, 2),
-    //         vresult;
+        expected = new Matrix([[15,15,15],[30,30,30],[45,45,45]]);
+        product = Matrix.multiply(m4, m5);
 
-    //     // The cross product is restricted to 3D, so we start
-    //     // with an error check.
-    //     throws(
-    //         function () {
-    //             return v1.cross(v2);
-    //         },
-    //         "Check for non-3D matrixs"
-    //     );
+        deepEqual(product.height, expected.height, "Square multiplication height");
+        deepEqual(product.width, expected.width, "Square multiplication width");
+        deepEqual(product, expected, "Square multiplication");
 
-    //     // Yeah, this is a bit of a trivial case.  But it at least
-    //     // establishes the right-handedness of a cross-product.
-    //     v1 = new Vector(1, 0, 0);
-    //     v2 = new Vector(0, 1, 0);
-    //     vresult = v1.cross(v2);
+        expected = new Matrix([[24,24,24],[30,30,30],[36,36,36]]);
+        product = Matrix.multiply(m5, m4);
 
-    //     equal(vresult.x(), 0, "Cross product first element");
-    //     equal(vresult.y(), 0, "Cross product second element");
-    //     equal(vresult.z(), 1, "Cross product third element");
+        deepEqual(product.height, expected.height, "Square multiplication (other way) height");
+        deepEqual(product.width, expected.width, "Square multiplication (other way) width");
+        deepEqual(product, expected, "Square multiplication (other way)");
 
-    //     // This one shows that switching matrix order produces
-    //     // the opposite-pointing normal.
-    //     vresult = v2.cross(v1);
+        let m6 = new Matrix([1,2,3,4,5,6], 3, 2);
+        let m7 = new Matrix([1,2,3,4,5,6], 2, 3);
 
-    //     equal(vresult.x(), 0, "Cross product first element");
-    //     equal(vresult.y(), 0, "Cross product second element");
-    //     equal(vresult.z(), -1, "Cross product third element");
-    // });
+        expected = new Matrix([22,28,49,64], 2, 2);
+        product = Matrix.multiply(m6, m7);
 
-    // test("Magnitude and Unit Vectors", function () {
-    //     var v = new Vector(3, 4);
 
-    //     // The classic example.
-    //     equal(v.magnitude(), 5, "2D magnitude check");
+        deepEqual(product.height, expected.height, "3x2, 2x3 height");
+        deepEqual(product.width, expected.width, "3x2, 2x3 width");
+        deepEqual(product, expected, "3x2, 2x3 multiplication");
+    });
+    test("Determinant", function() {
+        let identity = new Matrix();
+        deepEqual(identity.determinant(), 1, "Identity determinant");
 
-    //     // Kind of a cheat, but still tests the third dimension.
-    //     v = new Vector(5, 0, 12);
-    //     equal(v.magnitude(), 13, "3D magnitude check");
+        let m1 = new Matrix([[42]]);
+        deepEqual(m1.determinant(), 42, "1x1 determinant");
+        
+        let m2 = new Matrix([[1,2],[3,4]]);
+        deepEqual(m2.determinant(), -2, "2x2 determinant");
 
-    //     // Now for unit matrixs.
-    //     v = (new Vector(3, 4)).unit();
+        let m3 = new Matrix([[1,2,3],[4,5,6],[7,8,9]]);
+        deepEqual(m3.determinant(), 0, "3x3 determinant");
 
-    //     equal(v.magnitude(), 1, "2D unit matrix check");
-    //     equal(v.x(), 3 / 5, "2D unit matrix first element");
-    //     equal(v.y(), 4 / 5, "2D unit matrix second element");
+        let m4 = new Matrix([[5,2,3,4],[1,4,3,4],[7,2,3,4],[1,2,3,2]]);
+        deepEqual(m4.determinant(), 24, "4x4 determinant");
+    });
+    test("Translation", function() {
+        let move111 = Matrix.translate(1,1,1);
+        deepEqual(move111(0,0,0).array, [1,1,1,1], "Move origin by 1,1,1");
+        deepEqual(move111(1,1,1).array, [2,2,2,1], "Move 1,1,1 by 1,1,1");
+        deepEqual(move111(-1,-1,-1).array, [0,0,0,1], "Move -1,-1,-1 by 1,1,1");
 
-    //     v = (new Vector(0, -7, 24)).unit();
+        let move222 = Matrix.translate(2,2,2);
+        deepEqual(move222(0,0,0).array, [2,2,2,1], "Move origin by 2,2,2");
+        deepEqual(move222(1,1,1).array, [3,3,3,1], "Move 1,1,1 by 2,2,2");
+        deepEqual(move222(-1,-1,-1).array, [1,1,1,1], "Move -1,-1,-1 by 2,2,2");
 
-    //     equal(v.magnitude(), 1, "3D unit matrix check");
-    //     equal(v.x(), 0, "3D unit matrix first element");
-    //     equal(v.y(), -7 / 25, "3D unit matrix second element");
-    //     equal(v.z(), 24 / 25, "3D unit matrix third element");
-    // });
+        let negMove111 = Matrix.translate(-1,-1,-1);
+        deepEqual(negMove111(0,0,0).array, [-1,-1,-1,1], "Move origin by -1,-1,-1");
+        deepEqual(negMove111(1,1,1).array, [0,0,0,1], "Move 1,1,1 by -1,-1,-1");
+        deepEqual(negMove111(-1,-1,-1).array, [-2,-2,-2,1], "Move -1,-1,-1 by -1,-1,-1");
 
-    // test("Projection", function () {
-    //     var v = new Vector(3, 3, 0),
-    //         vresult = v.projection(new Vector(5, 0, 0));
 
-    //     equal(vresult.magnitude(), 3, "3D matrix projection magnitude check");
-    //     equal(vresult.x(), 3, "3D matrix projection first element");
-    //     equal(vresult.y(), 0, "3D matrix projection second element");
-    //     equal(vresult.z(), 0, "3D matrix projection third element");
+        let move = Matrix.translate(42,-69,153);
+        deepEqual(move(0,0,0).array, [42,-69,153,1], "Move origin by 42,-69,153");
+        deepEqual(move(1,1,1).array, [43,-68,154,1], "Move 1,1,1 by 42,-69,153");
+        deepEqual(move(-1,-1,-1).array, [41,-70,152,1], "Move -1,-1,-1 by 42,-69,153");
 
-    //     // Error check: projection only applies to matrixs with the same
-    //     // number of dimensions.
-    //     throws(
-    //         function () {
-    //             (new Vector(5, 2)).projection(new Vector(9, 8, 1));
-    //         },
-    //         "Ensure that projection applies only to matrixs with the same number of dimensions"
-    //     );
-    // });
-
+    });
 });

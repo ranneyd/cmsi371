@@ -142,7 +142,7 @@
                         renderingContext.restore();
                     }
                 }
-            }''
+            }
 
             // Move to the next frame.
             currentFrame += 1;
