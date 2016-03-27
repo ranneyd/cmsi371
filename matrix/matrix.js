@@ -245,4 +245,26 @@ class Matrix {
     static rotateGL( theta, rx, ry, rz ) {
         return Matrix.rotate( theta, rx, ry, rz ).colMajor;
     }
+    static orthoProject( L, R, T, B, N, F ) {
+        return new Matrix([
+                2 / (R - L),           0,              0, -( R + L ) / ( R - L ),
+                          0, 2/ ( T - B),              0, -( T + B ) / ( T - B ),
+                          0,           0, -2 / ( F - N ), -( F + N ) / ( F - N ),
+                          0,           0,              0,                      1
+            ], 4, 4);
+    }
+    static orthoProjectGL( L, R, T, B, N, F ) {
+        return Matrix.orthoProject( L, R, T, B, N, F ).colMajor;
+    }
+    static frustumProject( L, R, T, B, N, F ) {
+        return new Matrix([
+                2 * N / (R - L), 0, ( R + L ) / ( R - L ), 0,
+                0, 2 * N / ( T - B ), ( T + B ) / ( T - B ), 0,
+                0, 0, - ( F + N ) / ( F - N ), -2 * N * F / ( F - N ),
+                0, 0, -1, 0
+            ], 4, 4);
+    }
+    static frustumProjectGL( L, R, T, B, N, F ) {
+        return Matrix.frustumProject( L, R, T, B, N, F ).colMajor;
+    }
 }
