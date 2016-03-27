@@ -17,7 +17,7 @@ $(function () {
 
         deepEqual(m.array, [1,2,3,4,5,6,7,8,9], "Matrix array");
         deepEqual(m.array2d, [[1,2,3],[4,5,6],[7,8,9]], "Matrix 2d array");
-        deepEqual(m.colMajor, [[1,4,7],[2,5,8],[3,6,9]], "Matrix column major");
+        deepEqual(m.colMajor, [1,4,7,2,5,8,3,6,9], "Matrix column major");
 
         equal(m.height, 3, "Matrix height");
         equal(m.width, 3, "Matrix width");
@@ -26,7 +26,7 @@ $(function () {
 
         deepEqual(single.array, [42], "1x1 array");
         deepEqual(single.array2d, [[42]], "1x1 2d array");
-        deepEqual(single.colMajor, [[42]], "1x1 column major");
+        deepEqual(single.colMajor, [42], "1x1 column major");
 
         equal(single.height, 1, "1x1 height");
         equal(single.width, 1, "1x1 width");
@@ -35,7 +35,7 @@ $(function () {
 
         deepEqual(nonSquare.array, [1,2,3,4,5,6,7,8,9,10,11,12], "nonSquare array");
         deepEqual(nonSquare.array2d, [[1,2,3],[4,5,6],[7,8,9],[10, 11, 12]], "nonSquare 2d array");
-        deepEqual(nonSquare.colMajor, [[1,4,7,10],[2,5,8,11],[3,6,9,12]], "nonSquare column major");
+        deepEqual(nonSquare.colMajor, [1,4,7,10,2,5,8,11,3,6,9,12], "nonSquare column major");
 
 
         equal(nonSquare.height, 4, "nonSquare height");
@@ -45,7 +45,7 @@ $(function () {
 
         deepEqual(empty.array, [], "empty Array");
         deepEqual(empty.array2d, [[]], "empty 2d Array");
-        deepEqual(empty.colMajor, [[]], "empty column major");
+        deepEqual(empty.colMajor, [], "empty column major");
         equal(empty.height, 0, "empty height");
         equal(empty.width, 0, "empty width");
 
@@ -313,6 +313,9 @@ $(function () {
         testMatrix( 2 *Math.PI, 0, 0, 1, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1] );
         testMatrix( Math.PI / 3, 0, 0, 1, [0.5,-r32,0,0,r32,0.5,0,0,0,0,1,0,0,0,0,1] );
         testMatrix( 2 * Math.PI / 3, 0, 0, 1, [-0.5,-r32,0,0,r32,-0.5,0,0,0,0,1,0,0,0,0,1] );
+        
+        let rotateGL = Matrix.rotateGL(0, 1, 0, 0);
+        deepEqual(rotateGL, [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1], "GL Helper");
 
         throws(
             () => {

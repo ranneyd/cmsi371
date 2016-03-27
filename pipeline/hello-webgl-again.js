@@ -85,11 +85,11 @@
         //     vertices: Shapes.toRawLineArray(Shapes.cylinder(30)),
         //     mode: gl.LINES
         // },
-        // {
-        //     color: { r: 0.0, g: 0.0, b: 0.5 },
-        //     vertices: Shapes.toRawTriangleArray(Shapes.roundedCylinder(0.7, 50)),
-        //     mode: gl.TRIANGLES
-        // },
+        {
+            color: { r: 0.0, g: 0.0, b: 0.5 },
+            vertices: Shapes.toRawTriangleArray(Shapes.frustomOfCone(1, 50)),
+            mode: gl.TRIANGLES
+        },
         // {
         //     color: { r: 0.5, g: 0.0, b: 0.0 },
         //     vertices: Shapes.toRawLineArray(Shapes.frustomOfCone(0.7, 30)),
@@ -100,11 +100,6 @@
         //     vertices: Shapes.toRawTriangleArray(Shapes.cube()),
         //     mode: gl.TRIANGLES
         // },
-        {
-            color: { r: 0.5, g: 0.0, b: 0.0 },
-            vertices: Shapes.toRawLineArray(Shapes.snake(30, 1, 0, 0)),
-            mode: gl.LINES
-        },
     ];
 
     // Pass the vertices to WebGL.
@@ -191,7 +186,8 @@
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // Set up the rotation matrix.
-        gl.uniformMatrix4fv(rotationMatrix, gl.FALSE, new Float32Array(Utils.getRotationMatrix(currentRotation, ...ROTATION_VECTOR)));
+        let rotateMatrix = Matrix.rotateGL(currentRotation, ...ROTATION_VECTOR);
+        gl.uniformMatrix4fv(rotationMatrix, gl.FALSE, new Float32Array(rotateMatrix));
 
         // Display the objects.
         for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
@@ -231,10 +227,10 @@
         }
 
         // All clear.
-        currentRotation += 0.033 * progress;
+        currentRotation += 0.001 * progress;
         drawScene();
-        if (currentRotation >= 360.0) {
-            currentRotation -= 360.0;
+        if (currentRotation >= 2 * Math.PI) {
+            currentRotation -= 2 * Math.PI;
         }
 
         // Request the next frame.

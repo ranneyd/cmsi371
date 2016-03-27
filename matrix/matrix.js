@@ -82,15 +82,13 @@ class Matrix {
     }
     get colMajor() {
         if( this.height === 0 ) {
-            return [[]];
+            return [];
         }
         let matrix = [];
         for( let col = 0; col < this.width; ++col ) {
-            let rowObj = [];
             for( let row = 0; row < this.height; ++row ) {
-                rowObj.push(this.matrix[row * this.width + col]);
+                matrix.push(this.matrix[row * this.width + col]);
             }
-            matrix.push(rowObj);
         }
         return matrix;
     }
