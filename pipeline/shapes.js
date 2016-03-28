@@ -344,7 +344,98 @@ class Cylinder extends FrustomCylinder{
             this.color, 
             this.resolution, 
             this.upperToLower 
-        );;
+        );
+        shape.copy( this );
+        return shape;
+    }
+}
+class Sphere extends RoundShape{
+    constructor( GLSL, gl, fill, color, resolution ) {
+        super( GLSL, gl, fill, color, resolution);
+        
+        // Generate the sphere as stacked frustom cylinders. Each one gets
+        // smaller as we go up the sphere. Each time we make a duplicate and
+        // rotate it pi radians to make the bottom half of the sphere
+
+        // Scale of the current slice of sphere. Begins at 1 and gets smaller
+        let scale = 1;
+
+        // Angle increases by the step every time
+        let lastAngle = 0;
+        let step = Math.PI / (2 * resolution);
+        let angle = step;
+
+        for( let i = 1; i < resolution; ++i ) {
+            // Cosine gives us horizontal size. Each slice has a ratio of top
+            // to bottom proportional to the cosine of the new angle to the
+            // previous angle. This way each slice has a bottom width of the
+            // previous slice's top width
+            let upperToLower = Math.cos(angle) / Math.cos(lastAngle);
+            
+            let part = new FrustomCylinder(
+                GLSLUtilities, 
+                gl, 
+                fill, 
+                color, 
+                resolution, 
+                upperToLower
+            );
+            
+            // Sine is vertical size. Same logic as before basically.
+            let sin = Math.sin(angle);
+            let sinLast = Math.sin(lastAngle);
+            
+            part.transform( Matrix.scale(scale, sin - sinLast , scale) );
+            part.transform( Matrix.translate(0, sin ,0) );
+
+            // We reduce the scale using this same ratio
+            scale *= upperToLower;
+            lastAngle += step;
+            angle += step;
+
+
+            this.children.push(part);
+
+            let bottomPart = part.duplicate();
+
+            bottomPart.transform(Matrix.rotate(Math.PI, 1, 0, 0));
+
+            this.children.push(bottomPart);
+        }
+        // Do the caps
+        {
+            let top = new Cone( 
+                GLSLUtilities, 
+                gl, 
+                fill,
+                color, 
+                resolution
+            );
+            
+            let sin = Math.sin(angle);
+            let sinLast = Math.sin(lastAngle);
+            top.transform( Matrix.scale(scale, sin - sinLast, scale) );
+            top.transform( Matrix.translate(0, 1,0) );
+
+            this.children.push( top );
+
+            let bot = top.duplicate();
+
+            bot.transform(Matrix.rotate(Math.PI, 1, 0, 0));
+
+            this.children.push(bot);
+        }
+
+        this.finish();
+    }
+    duplicate() {
+        let shape = new Sphere( 
+            this.GLSL, 
+            this.gl, 
+            this.fill, 
+            this.color, 
+            this.resolution
+        );
         shape.copy( this );
         return shape;
     }
