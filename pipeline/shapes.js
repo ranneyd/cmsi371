@@ -1,16 +1,120 @@
 'use strict';
-/*
- * This module defines/generates vertex arrays for certain predefined shapes.
- * The "shapes" are returned as indexed vertices, with utility functions for
- * converting these into "raw" coordinate arrays.
- */
-var Shapes = {
+
+class Shape{
+    // GLSL: GLSLUtilities object
+    // gl: WebGL rendering context
+    // fill: boolean. True if we're using triangles (filling it in), false if lines
+    // color: object with r,g,b properties
+    constructor( GLSL, gl, fill, color ) {
+        this.GLSL = GLSL;
+        this.gl = gl;
+        this.color = color
+        this.X = 0;
+        this.Y = 0;
+        this.Z = 0;
+        this.vertices = [];
+        this.indices = [];
+        this.fill = fill;
+    }
+
+    finish() {
+        if( this.fill ) {
+            this.vertices = this.toRawTriangleArray();
+        }
+        else {
+            this.vertices = this.toRawLineArray();
+        }
+        // pass to GLSL
+        this.buffer = this.GLSL.initVertexBuffer( this.gl, this.vertices );
+
+        // If we have a single color, we expand that into an array
+        // of the same color over and over.
+        this.colors = [];
+        for ( let j = 0, maxj = this.vertices.length / 3;
+                j < maxj; ++j ) {
+            this.colors = this.colors.concat(
+                this.color.r,
+                this.color.g,
+                this.color.b
+            );
+        }
+        this.colorBuffer = this.GLSL.initVertexBuffer(this.gl, this.colors);
+    }
+
+    // Deep copies vertices and indices
+    copy() {
+        let shape = new Shape( this.color );
+        let vertices = new Array( this.vertices.length );
+        let indices = new Array( this.indices.length );
+
+        for(let i = 0; i < this.vertices.length; ++i) {
+            let vertex = new Array(3);
+            for(let j = 0; j < 0; ++j) {
+                vertex[j] = this.vertices[i][j];
+            }
+            vertices[i] = vertex;
+        }
+
+        shape.vertices = vertices;
+        shape.indices = indices;
+        return shape;
+    }
+
+    draw( vertexColor, vertexPosition ) {
+        let gl = this.gl;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+        gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
+
+        // Set the varying vertex coordinates.
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(this.fill ? gl.TRIANGLES : gl.LINES, 0, this.vertices.length / 3);
+    }
+
     /*
-     * Returns the vertices and indices for a small cone.
+     * Utility function for turning indexed vertices into a "raw" coordinate array
+     * arranged as triangles.
      */
-    cube: function () {
+    toRawTriangleArray() {
+        var result = [];
+
+        for (var i = 0, maxi = this.indices.length; i < maxi; i += 1) {
+            for (var j = 0, maxj = this.indices[i].length; j < maxj; j += 1) {
+                result = result.concat(
+                    this.vertices[this.indices[i][j]]
+                );
+            }
+        }
+
+        return result;
+    }
+
+    /*
+     * Utility function for turning indexed vertices into a "raw" coordinate array
+     * arranged as line segments.
+     */
+    toRawLineArray() {
+        var result = [];
+
+        for (var i = 0, maxi = this.indices.length; i < maxi; i += 1) {
+            for (var j = 0, maxj = this.indices[i].length; j < maxj; j += 1) {
+                result = result.concat(
+                    this.vertices[this.indices[i][j]],
+                    this.vertices[this.indices[i][(j + 1) % maxj]]
+                );
+            }
+        }
+
+        return result;
+    }
+}
+class Cube extends Shape {
+    constructor( GLSL, gl, fill, color ) {
+        super( GLSL, gl, fill, color );
+        
         const [S, X, Y, Z] = [0.5, 0, 0, 0];
-        let vertices = [
+        this.vertices = [
             // Front face
             [X, Y, Z], //0 NW
             [X, Y - S, Z], //1 SW
@@ -23,7 +127,7 @@ var Shapes = {
             [X - S, Y - S, Z - S], //7 SE
         ];
 
-        let indices = [
+        this.indices = [
             // front
             [0, 1, 2],
             [1, 2, 3],
@@ -43,63 +147,69 @@ var Shapes = {
             [2, 3, 7],
             [6, 2, 7]
         ];
-        return {
-            vertices: vertices,
-            indices: indices
-        }
-    },
-    /*
-     * Returns the vertices and indices for a small cone.
-     */
-    cone: function (faceCount) {
-        const X = 0;
-        const Y = 0;
-        const Z = 0;
-        const H = 0.5;
-        const R = 0.5;
 
-        let vertices = [
-            [ X, Y, Z]
+        this.finish();
+    }
+}
+
+class RoundShape extends Shape {
+    constructor( GLSL, gl, fill, color, resolution ) {
+        super( GLSL, gl, fill, color );
+        this.resolution = resolution;
+    }
+    copy() {
+        let shape = super.copy();
+        shape.resolution = this.resolution;
+        return shape;
+    }
+}
+class Cone extends RoundShape {
+    constructor( GLSL, gl, fill, color, resolution ) {
+        super( GLSL, gl, fill, color, resolution );
+        
+        this.H = 0.5;
+        this.R = 0.5;
+
+        this.vertices = [
+            [ this.X, this.Y, this.Z]
         ];
-        let indices = [];
+        this.indices = [];
 
-        let thetaDelta = 2 * Math.PI / faceCount;
+        let thetaDelta = 2 * Math.PI / resolution;
         let angle = 0;
-        for(let i = 1; i < faceCount + 1; ++i) {
-            vertices.push(
-                [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
+        for(let i = 1; i < resolution + 1; ++i) {
+            this.vertices.push(
+                [this.R * Math.cos(angle) , this.Y - this.H , this.R * Math.sin(angle)]
             );
             if( i > 1 ) {
-                indices.push([0, i - 1, i]);
+                this.indices.push([0, i - 1, i]);
             }
             angle += thetaDelta;
         }
-        indices.push([0, faceCount, 1]);
+        this.indices.push([0, resolution, 1]);
 
-        return {
-            vertices: vertices,
-            indices: indices
-        };
-    },
-    frustomOfCone: function(upperToLower, resolution){
-        const A = upperToLower * 0.5;
-        const B = 0.5
-        const H = 0.5;
-        const X = 0;
-        const Y = 0;
-        const Z = 0;
+        this.finish();
+    }
+}
+class FrustomCylinder extends RoundShape {
+    constructor( GLSL, gl, fill, color, resolution, upperToLower ) {
+        super( GLSL, gl, fill, color, resolution );
 
-        let vertices = [];
-        let indices = [];
+        this.A = upperToLower * 0.5;
+        this.B = 0.5
+        this.H = 0.5;
+
+        this.vertices = [];
+        this.indices = [];
 
         let thetaDelta = 2 * Math.PI / resolution;
         let angle = 0;
         for(let i = 0; i < resolution + 2; ++i) {
-            vertices.push(
-                [A * Math.cos(angle) , Y , A * Math.sin(angle)]
+            this.vertices.push(
+                [this.A * Math.cos(angle) , this.Y , this.A * Math.sin(angle)]
             );
-            vertices.push(
-                [B * Math.cos(angle) , Y - H , B * Math.sin(angle)]
+            this.vertices.push(
+                [this.B * Math.cos(angle) , this.Y - this.H , this.B * Math.sin(angle)]
             );
 
             if( i > 1 ) {
@@ -113,98 +223,19 @@ var Shapes = {
                         right: 2 * i + 1
                     }
                 }
-                indices.push([verts.upper.left, verts.lower.left, verts.upper.right]);
-                indices.push([verts.upper.right, verts.lower.left, verts.lower.right]);
+                this.indices.push([verts.upper.left, verts.lower.left, verts.upper.right]);
+                this.indices.push([verts.upper.right, verts.lower.left, verts.lower.right]);
             }
 
             angle += thetaDelta;
         }
 
-        return {
-            vertices: vertices,
-            indices: indices
-        };
-
-    },
-    // /*
-    //  * Returns the vertices and indices for a cylinder that follows 
-    //  * a cubic curve of form ax^3 + bx^2 + cx for -1 < x < 1
-    //  */
-    // snake: function(resolution, A, B, C) {
-    //     let y = x => {
-    //         return A * x * x * x + B * x * x + C * x;
-    //     };
-    //     let dydx = x => {
-    //         return 3 * A * x * x + 2 * B * x + C;
-    //     }
-
-    //     let veritces = [];
-    //     let indices = [];
-
-    //     const [X0, X1, Y, Z, R] = [-1, 1, 0, 0, 0.5];
-
-    //     let xDelta = (X1 - X0)/resolution;
-    //     for(let x = X0, x < X1; x+= xDelta){
-
-    //         let ourY = y(x);
-    //         let ourDyDx = dydx(x);
-
-    //         let thetaDelta = 2 * Math.PI / resolution;
-    //         let angle = 0;
-    //         for(let j = 0; j <= resolution + 1; ++j) {
-    //             vertices.push(
-    //                 [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
-    //             );
-    //             if( i > 1 ) {
-    //                 indices.push([0, i - 1, i]);
-    //             }
-    //             angle += thetaDelta;
-    //         }
-    //     }
-    // },
-
-    /*
-     * Utility function for turning indexed vertices into a "raw" coordinate array
-     * arranged as triangles.
-     */
-    toRawTriangleArray: function (indexedVertices) {
-        var result = [];
-
-        for (var i = 0, maxi = indexedVertices.indices.length; i < maxi; i += 1) {
-            for (var j = 0, maxj = indexedVertices.indices[i].length; j < maxj; j += 1) {
-                result = result.concat(
-                    indexedVertices.vertices[
-                        indexedVertices.indices[i][j]
-                    ]
-                );
-            }
-        }
-
-        return result;
-    },
-
-    /*
-     * Utility function for turning indexed vertices into a "raw" coordinate array
-     * arranged as line segments.
-     */
-    toRawLineArray: function (indexedVertices) {
-        var result = [];
-
-        for (var i = 0, maxi = indexedVertices.indices.length; i < maxi; i += 1) {
-            for (var j = 0, maxj = indexedVertices.indices[i].length; j < maxj; j += 1) {
-                result = result.concat(
-                    indexedVertices.vertices[
-                        indexedVertices.indices[i][j]
-                    ],
-
-                    indexedVertices.vertices[
-                        indexedVertices.indices[i][(j + 1) % maxj]
-                    ]
-                );
-            }
-        }
-
-        return result;
+        this.finish();
     }
+}
 
-};
+class Cylinder extends FrustomCylinder{
+    constructor( GLSL, gl, fill, color, resolution ) {
+        super( GLSL, gl, fill, color, resolution, 1);
+    }
+}

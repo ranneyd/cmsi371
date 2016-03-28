@@ -25,104 +25,9 @@
 
     // Build the objects to display.
     var objectsToDraw = [
-        // {
-        //     vertices: [].concat(
-        //         [ 0.0, 0.0, 0.0 ],
-        //         [ 0.5, 0.0, -0.75 ],
-        //         [ 0.0, 0.5, 0.0 ]
-        //     ),
-        //     colors: [].concat(
-        //         [ 1.0, 0.0, 0.0 ],
-        //         [ 0.0, 1.0, 0.0 ],
-        //         [ 0.0, 0.0, 1.0 ]
-        //     ),
-        //     mode: gl.TRIANGLES
-        // },
-
-        // {
-        //     color: { r: 0.0, g: 1.0, b: 0 },
-        //     vertices: [].concat(
-        //         [ 0.25, 0.0, -0.5 ],
-        //         [ 0.75, 0.0, -0.5 ],
-        //         [ 0.25, 0.5, -0.5 ]
-        //     ),
-        //     mode: gl.TRIANGLES
-        // },
-
-        // {
-        //     color: { r: 0.0, g: 0.0, b: 1.0 },
-        //     vertices: [].concat(
-        //         [ -0.25, 0.0, 0.5 ],
-        //         [ 0.5, 0.0, 0.5 ],
-        //         [ -0.25, 0.5, 0.5 ]
-        //     ),
-        //     mode: gl.TRIANGLES
-        // },
-
-        // {
-        //     color: { r: 0.0, g: 0.0, b: 1.0 },
-        //     vertices: [].concat(
-        //         [ -1.0, -1.0, 0.75 ],
-        //         [ -1.0, -0.1, -1.0 ],
-        //         [ -0.1, -0.1, -1.0 ],
-        //         [ -0.1, -1.0, 0.75 ]
-        //     ),
-        //     mode: gl.LINE_LOOP
-        // },
-
-        // {
-        //     color: { r: 0.0, g: 0.5, b: 0.0 },
-        //     vertices: Shapes.toRawLineArray(Shapes.cone(20)),
-        //     mode: gl.LINES
-        // },
-        // {
-        //     color: { r: 0.5, g: 0.0, b: 0.0 },
-        //     vertices: Shapes.toRawTriangleArray(Shapes.cylinder(30)),
-        //     mode: gl.TRIANGLES
-        // }
-        // {
-        //     color: { r: 0.5, g: 0.0, b: 0.0 },
-        //     vertices: Shapes.toRawLineArray(Shapes.cylinder(30)),
-        //     mode: gl.LINES
-        // },
-        {
-            color: { r: 0.0, g: 0.0, b: 0.5 },
-            vertices: Shapes.toRawTriangleArray(Shapes.frustomOfCone(1, 50)),
-            mode: gl.TRIANGLES
-        },
-        // {
-        //     color: { r: 0.5, g: 0.0, b: 0.0 },
-        //     vertices: Shapes.toRawLineArray(Shapes.frustomOfCone(0.7, 30)),
-        //     mode: gl.LINES
-        // },
-        // {
-        //     color: { r: 0.5, g: 0.0, b: 0.0 },
-        //     vertices: Shapes.toRawTriangleArray(Shapes.cube()),
-        //     mode: gl.TRIANGLES
-        // },
+        new Cylinder( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, 50),
+        new Cube( GLSLUtilities, gl, false, { r: 0.0, g: 0.5, b: 0.0 })
     ];
-
-    // Pass the vertices to WebGL.
-    for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
-        objectsToDraw[i].buffer = GLSLUtilities.initVertexBuffer(gl,
-                objectsToDraw[i].vertices);
-
-        if (!objectsToDraw[i].colors) {
-            // If we have a single color, we expand that into an array
-            // of the same color over and over.
-            objectsToDraw[i].colors = [];
-            for (var j = 0, maxj = objectsToDraw[i].vertices.length / 3;
-                    j < maxj; j += 1) {
-                objectsToDraw[i].colors = objectsToDraw[i].colors.concat(
-                    objectsToDraw[i].color.r,
-                    objectsToDraw[i].color.g,
-                    objectsToDraw[i].color.b
-                );
-            }
-        }
-        objectsToDraw[i].colorBuffer = GLSLUtilities.initVertexBuffer(gl,
-                objectsToDraw[i].colors);
-    }
 
     // Initialize the shaders.
     var abort = false;
@@ -162,20 +67,6 @@
     var rotationMatrix = gl.getUniformLocation(shaderProgram, "rotationMatrix");
 
     /*
-     * Displays an individual object.
-     */
-    var drawObject = function (object) {
-        // Set the varying colors.
-        gl.bindBuffer(gl.ARRAY_BUFFER, object.colorBuffer);
-        gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
-
-        // Set the varying vertex coordinates.
-        gl.bindBuffer(gl.ARRAY_BUFFER, object.buffer);
-        gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(object.mode, 0, object.vertices.length / 3);
-    };
-
-    /*
      * Displays the scene.
      */
     var drawScene = function () {
@@ -191,7 +82,7 @@
 
         // Display the objects.
         for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
-            drawObject(objectsToDraw[i]);
+            objectsToDraw[i].draw( vertexColor, vertexPosition );
         }
 
         // All done.
