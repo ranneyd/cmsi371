@@ -8,13 +8,15 @@ class Shape{
     constructor( GLSL, gl, fill, color ) {
         this.GLSL = GLSL;
         this.gl = gl;
-        this.color = color
+        this.colorObj = color;
+        this.fill = fill;
+
         this.X = 0;
         this.Y = 0;
         this.Z = 0;
+
         this.vertices = [];
         this.indices = [];
-        this.fill = fill;
         this.transformMatrix = new Matrix();
         this.children = [];
     }
@@ -31,6 +33,9 @@ class Shape{
         // pass to GLSL
         this.buffer = this.GLSL.initVertexBuffer( this.gl, this.vertices );
 
+        this.colorFixer();
+    }
+    colorFixer() {
         // If we have a single color, we expand that into an array
         // of the same color over and over.
         this.colors = [];
@@ -43,6 +48,13 @@ class Shape{
             );
         }
         this.colorBuffer = this.GLSL.initVertexBuffer(this.gl, this.colors);
+    }
+    set color( color ){
+        this.colorObj = color;
+        this.colorFixer();
+    }
+    get color() {
+        return this.colorObj;
     }
     /*
      * Utility function for turning indexed vertices into a "raw" coordinate array
@@ -80,45 +92,65 @@ class Shape{
 
         return result;
     }
-    // Deep copies vertices and indices
-    copy() {
-        let shape = new Shape( this.color );
-        let vertices = new Array( this.vertices.length );
-        let indices = new Array( this.indices.length );
+    // Deep copies of everything
+    copy( shape ) {
+        this.GLSL = shape.GLSL;
+        this.gl = shape.gl;
+        this.color = shape.color;
+        this.fill = shape.fill;
+        this.transformMatrix = shape.transformMatrix.duplicate();
 
-        for(let i = 0; i < this.vertices.length; ++i) {
-            let vertex = new Array(3);
+        let vertices = [];
+        let indices = [];
+
+        for(let i = 0; i < shape.vertices.length; ++i) {
+            let vertex = [];
+            let index = [];
             for(let j = 0; j < 0; ++j) {
-                vertex[j] = this.vertices[i][j];
+                vertex.push(shape.vertices[i][j]);
+                index.push(shape.indices[i][j]);
             }
-            vertices[i] = vertex;
+            vertices.push(vertex);
+            indices.push(index);
         }
 
-        shape.vertices = vertices;
-        shape.indices = indices;
+        this.vertices = vertices;
+        this.indices = indices;
+
+        for(let child of shape.children) {
+            this.children.push( child.duplicate() );
+        }
+
+        return this;
+    }
+    // Should be overloaded
+    duplicate(){
+        let shape = new Shape( this.GLSL, this.gl, this.fill, this.color );
+        shape.copy( this );
         return shape;
     }
 
     // Draws the shape in the gl context supplied at construction
     draw( shaderProgram ) {
         let gl = this.gl;
+        if( this.vertices.length ) {
+            // Hold on to the important variables within the shaders.
+            let vertexPosition = gl.getAttribLocation(shaderProgram, "vertexPosition");
+            gl.enableVertexAttribArray(vertexPosition);
+            let vertexColor = gl.getAttribLocation(shaderProgram, "vertexColor");
+            gl.enableVertexAttribArray(vertexColor);
+            let transformMatrix = gl.getUniformLocation(shaderProgram, "transformMatrix");
 
-        // Hold on to the important variables within the shaders.
-        let vertexPosition = gl.getAttribLocation(shaderProgram, "vertexPosition");
-        gl.enableVertexAttribArray(vertexPosition);
-        let vertexColor = gl.getAttribLocation(shaderProgram, "vertexColor");
-        gl.enableVertexAttribArray(vertexColor);
-        let transformMatrix = gl.getUniformLocation(shaderProgram, "transformMatrix");
+            gl.uniformMatrix4fv(transformMatrix, gl.FALSE, new Float32Array( this.matrixGL ));
 
-        gl.uniformMatrix4fv(transformMatrix, gl.FALSE, new Float32Array( this.matrixGL ));
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+            gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
-
-        // Set the varying vertex coordinates.
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(this.fill ? gl.TRIANGLES : gl.LINES, 0, this.vertices.length / 3);
+            // Set the varying vertex coordinates.
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+            gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
+            gl.drawArrays(this.fill ? gl.TRIANGLES : gl.LINES, 0, this.vertices.length / 3);
+        }
 
         // Draw children
         for(let child of this.children) {
@@ -187,6 +219,11 @@ class Cube extends Shape {
 
         this.finish();
     }
+    duplicate(){
+        let shape = new Cube( this.GLSL, this.gl, this.fill, this.color );
+        shape.copy( this );
+        return shape;
+    }
 }
 
 class RoundShape extends Shape {
@@ -194,9 +231,16 @@ class RoundShape extends Shape {
         super( GLSL, gl, fill, color );
         this.resolution = resolution;
     }
-    copy() {
-        let shape = super.copy();
-        shape.resolution = this.resolution;
+    copy( shape ){
+        super.copy( shape );
+        this.resolution = shape.resolution;
+        return this;
+    }
+    duplicate(){
+        let shape = new RoundShape( 
+            this.GLSL, this.gl, this.fill, this.color, this.resolution
+        );
+        shape.copy( this );
         return shape;
     }
 }
@@ -204,8 +248,8 @@ class Cone extends RoundShape {
     constructor( GLSL, gl, fill, color, resolution ) {
         super( GLSL, gl, fill, color, resolution );
         
-        this.H = 0.5;
-        this.R = 0.5;
+        this.H = 1;
+        this.R = 1;
 
         this.vertices = [
             [ this.X, this.Y, this.Z]
@@ -227,14 +271,19 @@ class Cone extends RoundShape {
 
         this.finish();
     }
+    duplicate(){
+        let shape = new Cone( this.GLSL, this.gl, this.fill, this.color, this.resolution );
+        shape.copy( this );
+        return shape;
+    }
 }
 class FrustomCylinder extends RoundShape {
     constructor( GLSL, gl, fill, color, resolution, upperToLower ) {
         super( GLSL, gl, fill, color, resolution );
 
-        this.A = upperToLower * 0.5;
-        this.B = 0.5
-        this.H = 0.5;
+        this.A = upperToLower;
+        this.B = 1
+        this.H = 1;
 
         this.vertices = [];
         this.indices = [];
@@ -269,10 +318,34 @@ class FrustomCylinder extends RoundShape {
 
         this.finish();
     }
+    duplicate(){
+        let shape = new FrustomCylinder( 
+            this.GLSL, 
+            this.gl, 
+            this.fill, 
+            this.color, 
+            this.resolution, 
+            this.A 
+        );
+        shape.copy( this );
+        return shape;
+    }
 }
 
 class Cylinder extends FrustomCylinder{
     constructor( GLSL, gl, fill, color, resolution ) {
         super( GLSL, gl, fill, color, resolution, 1);
+    }
+    duplicate(){
+        let shape = new Cylinder( 
+            this.GLSL, 
+            this.gl, 
+            this.fill, 
+            this.color, 
+            this.resolution, 
+            this.upperToLower 
+        );;
+        shape.copy( this );
+        return shape;
     }
 }

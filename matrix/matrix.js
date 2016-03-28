@@ -60,8 +60,8 @@ class Matrix {
         this.width = b.width;
         return this;
     }
-    static duplicate( b ) {
-        return new Matrix( b.array2d );
+    duplicate() {
+        return new Matrix( this.array2d );
     }
     get array() {
         return this.matrix;
@@ -93,7 +93,7 @@ class Matrix {
         return matrix;
     }
     static scalarMultiply(a, scalar){
-        return Matrix.duplicate(a).scalarMultiply( scalar );
+        return a.duplicate().scalarMultiply( scalar );
     }
     scalarMultiply( scalar ) {
         let length = this.matrix.length;
@@ -103,10 +103,10 @@ class Matrix {
         return this;
     }
     static add( a, b ) {
-        return Matrix.duplicate( a ).add( b );
+        return a.duplicate().add( b );
     }
     static subtract( a, b ) {
-        return Matrix.duplicate( a ).subtract( b );
+        return a.duplicate().subtract( b );
     }
     add( b ) {
         return this.addition( b, false );
@@ -135,7 +135,7 @@ class Matrix {
         return this;
     }
     static multiply( a, b ) {
-        return Matrix.duplicate( a ).multiply( b );
+        return a.duplicate().multiply( b );
     }
     multiply( b ) {
         if( this.width !== b.height ) {

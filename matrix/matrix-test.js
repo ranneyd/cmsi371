@@ -50,7 +50,7 @@ $(function () {
         equal(empty.width, 0, "empty width");
 
 
-        let dupe = Matrix.duplicate(m);
+        let dupe = m.duplicate();
         deepEqual(dupe, m, "Duplication equality");
         deepEqual(dupe.width, m.width, "Duplication width equality");
         deepEqual(dupe.height, m.height, "Duplication height equality");
