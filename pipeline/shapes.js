@@ -100,8 +100,17 @@ class Shape{
     }
 
     // Draws the shape in the gl context supplied at construction
-    draw( vertexColor, vertexPosition ) {
+    draw( shaderProgram ) {
         let gl = this.gl;
+
+        // Hold on to the important variables within the shaders.
+        let vertexPosition = gl.getAttribLocation(shaderProgram, "vertexPosition");
+        gl.enableVertexAttribArray(vertexPosition);
+        let vertexColor = gl.getAttribLocation(shaderProgram, "vertexColor");
+        gl.enableVertexAttribArray(vertexColor);
+        let transformMatrix = gl.getUniformLocation(shaderProgram, "transformMatrix");
+
+        gl.uniformMatrix4fv(transformMatrix, gl.FALSE, new Float32Array( this.matrixGL ));
 
         gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
         gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
@@ -112,8 +121,8 @@ class Shape{
         gl.drawArrays(this.fill ? gl.TRIANGLES : gl.LINES, 0, this.vertices.length / 3);
 
         // Draw children
-        for(let i = 0; i < this.children.length; ++i) {
-            this.children[i].draw( vertexColor, vertexPosition );
+        for(let child of this.children) {
+            child.draw( shaderProgram );
         }
     }
 
@@ -127,9 +136,9 @@ class Shape{
         }
     }
 
-    // Getter for transform matrix
-    get matrix() {
-        return this.transformMatrix;
+    // Getter for transform matrix in GL happy form
+    get matrixGL() {
+        return this.transformMatrix.colMajor;
     }
 
     addChild( child ) {

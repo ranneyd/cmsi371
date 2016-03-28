@@ -54,35 +54,20 @@
     // All done --- tell WebGL to use the shader program from now on.
     gl.useProgram(shaderProgram);
 
-    // Hold on to the important variables within the shaders.
-    var vertexPosition = gl.getAttribLocation(shaderProgram, "vertexPosition");
-    gl.enableVertexAttribArray(vertexPosition);
-    var vertexColor = gl.getAttribLocation(shaderProgram, "vertexColor");
-    gl.enableVertexAttribArray(vertexColor);
-    var transformMatrix = gl.getUniformLocation(shaderProgram, "transformMatrix");
 
     /*
      * Displays the scene.
      */
     var drawScene = function () {
-        // Vector representing rotation axis [x, y, z]
-        const ROTATION_VECTOR = [1, 1, 1]
-
         // Clear the display.
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        // Set up the rotation matrix.
-        let rotateMatrix = Matrix.rotate(currentRotation, ...ROTATION_VECTOR);
 
 
         // Display the objects.
         for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
             let shape = objectsToDraw[i];
-            let finalMatrix = Matrix.multiply( rotateMatrix, shape.matrix ).colMajor;
-
-            gl.uniformMatrix4fv(transformMatrix, gl.FALSE, new Float32Array( finalMatrix ));
-
-            objectsToDraw[i].draw( vertexColor, vertexPosition );
+            shape.transform(rotateMatrix);
+            shape.draw( shaderProgram );
         }
 
         // All done.
@@ -93,8 +78,9 @@
      * Animates the scene.
      */
     var animationActive = false;
-    var currentRotation = 0.0;
     var previousTimestamp = null;
+    // Make it the identity matrix at the beginning
+    let rotateMatrix = new Matrix();
 
     var advanceScene = function (timestamp) {
         // Check if the user has turned things off.
@@ -118,11 +104,8 @@
         }
 
         // All clear.
-        currentRotation += 0.001 * progress;
         drawScene();
-        if (currentRotation >= 2 * Math.PI) {
-            currentRotation -= 2 * Math.PI;
-        }
+
 
         // Request the next frame.
         previousTimestamp = timestamp;
@@ -131,6 +114,10 @@
 
     // Draw the initial scene.
     drawScene();
+    // Vector representing rotation axis [x, y, z]
+    const ROTATION_VECTOR = [1, 1, 1];
+    // Set the rotation matrix to actually rotate
+    rotateMatrix = Matrix.rotate(0.03, ...ROTATION_VECTOR);
 
     // Set up the rotation toggle: clicking on the canvas does it.
     $("#rotate").click(function () {
