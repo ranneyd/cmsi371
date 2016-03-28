@@ -142,6 +142,9 @@ $(function () {
         deepEqual(product.width, m1.width, "Identity multiplication width");
         deepEqual(product, m1, "Identity multiplication");
 
+        deepEqual(identity.multiplyLeft(m1), m1, "Identity multiplication (left)");
+
+
         let m2 = new Matrix([1,2,3,4], 4, 1);
         let m3 = new Matrix([1,2,3,4], 1, 4);
         let expected = new Matrix([30], 1,1);
@@ -158,6 +161,9 @@ $(function () {
         deepEqual(product.height, expected.height, "Row multiplication (other way) height");
         deepEqual(product.width, expected.width, "Row multiplication (other way) width");
         deepEqual(product, expected, "Row multiplication (other way)");
+
+        deepEqual(m2.multiplyLeft(m3), expected, "Row multiplication (left)");
+
 
         let m4 = new Matrix([[1,1,1],[2,2,2],[3,3,3]]);
         let m5 = new Matrix([[4,4,4],[5,5,5],[6,6,6]]);
@@ -176,6 +182,9 @@ $(function () {
         deepEqual(product.width, expected.width, "Square multiplication (other way) width");
         deepEqual(product, expected, "Square multiplication (other way)");
 
+        deepEqual(m4.multiplyLeft(m5), expected, "Square multiplication (left)");
+
+
         let m6 = new Matrix([1,2,3,4,5,6], 3, 2);
         let m7 = new Matrix([1,2,3,4,5,6,7,8,9,10,11,12], 4, 3);
 
@@ -183,6 +192,9 @@ $(function () {
         product = Matrix.multiply(m6, m7);
 
         deepEqual(product, expected, "3x2, 4x3 multiplication");
+
+        deepEqual(m7.multiplyLeft(m6), expected, "3x2, 4x3 multiplication (left)");
+
 
         throws(
             () => {

@@ -35,6 +35,9 @@
     <!-- Shapes is a library that generates "canned" shapes. -->
     <script src="shapes.js"></script>
 
+    <script src="my-shapes.js"></script>
+
+
     <!-- Set up shaders: we've placed the source in script elements for
         simplicity.  Shaders are ideally kept in separate files for easier
         maintenance, but in that situation, additional code and security
@@ -51,10 +54,10 @@
       // Note this new additional output.
       attribute vec3 vertexColor;
       varying vec4 finalVertexColor;
-      uniform mat4 rotationMatrix;
+      uniform mat4 transformMatrix;
 
       void main(void) {
-          gl_Position = rotationMatrix * vec4(vertexPosition, 1.0);
+          gl_Position = transformMatrix * vec4(vertexPosition, 1.0);
           finalVertexColor = vec4(vertexColor, 1.0);
       }
     </script>

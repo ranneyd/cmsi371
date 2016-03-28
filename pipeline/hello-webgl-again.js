@@ -20,14 +20,9 @@
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.viewport(0, 0, canvas.width, canvas.height);
 
-    
-
 
     // Build the objects to display.
-    var objectsToDraw = [
-        new Cylinder( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, 50),
-        new Cube( GLSLUtilities, gl, false, { r: 0.0, g: 0.5, b: 0.0 })
-    ];
+    var objectsToDraw = myShapes( GLSLUtilities, gl );
 
     // Initialize the shaders.
     var abort = false;
@@ -64,7 +59,7 @@
     gl.enableVertexAttribArray(vertexPosition);
     var vertexColor = gl.getAttribLocation(shaderProgram, "vertexColor");
     gl.enableVertexAttribArray(vertexColor);
-    var rotationMatrix = gl.getUniformLocation(shaderProgram, "rotationMatrix");
+    var transformMatrix = gl.getUniformLocation(shaderProgram, "transformMatrix");
 
     /*
      * Displays the scene.
@@ -77,11 +72,16 @@
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
         // Set up the rotation matrix.
-        let rotateMatrix = Matrix.rotateGL(currentRotation, ...ROTATION_VECTOR);
-        gl.uniformMatrix4fv(rotationMatrix, gl.FALSE, new Float32Array(rotateMatrix));
+        let rotateMatrix = Matrix.rotate(currentRotation, ...ROTATION_VECTOR);
+
 
         // Display the objects.
         for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
+            let shape = objectsToDraw[i];
+            let finalMatrix = Matrix.multiply( rotateMatrix, shape.matrix ).colMajor;
+
+            gl.uniformMatrix4fv(transformMatrix, gl.FALSE, new Float32Array( finalMatrix ));
+
             objectsToDraw[i].draw( vertexColor, vertexPosition );
         }
 

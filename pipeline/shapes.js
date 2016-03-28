@@ -15,8 +15,12 @@ class Shape{
         this.vertices = [];
         this.indices = [];
         this.fill = fill;
+        this.transformMatrix = new Matrix();
+        this.children = [];
     }
-
+    // Finishes the construction process. When creating a subclass of Shape,
+    // the constructor should begin with a call to the super constructor and
+    // end with a call to this function
     finish() {
         if( this.fill ) {
             this.vertices = this.toRawTriangleArray();
@@ -40,38 +44,6 @@ class Shape{
         }
         this.colorBuffer = this.GLSL.initVertexBuffer(this.gl, this.colors);
     }
-
-    // Deep copies vertices and indices
-    copy() {
-        let shape = new Shape( this.color );
-        let vertices = new Array( this.vertices.length );
-        let indices = new Array( this.indices.length );
-
-        for(let i = 0; i < this.vertices.length; ++i) {
-            let vertex = new Array(3);
-            for(let j = 0; j < 0; ++j) {
-                vertex[j] = this.vertices[i][j];
-            }
-            vertices[i] = vertex;
-        }
-
-        shape.vertices = vertices;
-        shape.indices = indices;
-        return shape;
-    }
-
-    draw( vertexColor, vertexPosition ) {
-        let gl = this.gl;
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
-        gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
-
-        // Set the varying vertex coordinates.
-        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
-        gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.drawArrays(this.fill ? gl.TRIANGLES : gl.LINES, 0, this.vertices.length / 3);
-    }
-
     /*
      * Utility function for turning indexed vertices into a "raw" coordinate array
      * arranged as triangles.
@@ -107,6 +79,62 @@ class Shape{
         }
 
         return result;
+    }
+    // Deep copies vertices and indices
+    copy() {
+        let shape = new Shape( this.color );
+        let vertices = new Array( this.vertices.length );
+        let indices = new Array( this.indices.length );
+
+        for(let i = 0; i < this.vertices.length; ++i) {
+            let vertex = new Array(3);
+            for(let j = 0; j < 0; ++j) {
+                vertex[j] = this.vertices[i][j];
+            }
+            vertices[i] = vertex;
+        }
+
+        shape.vertices = vertices;
+        shape.indices = indices;
+        return shape;
+    }
+
+    // Draws the shape in the gl context supplied at construction
+    draw( vertexColor, vertexPosition ) {
+        let gl = this.gl;
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+        gl.vertexAttribPointer(vertexColor, 3, gl.FLOAT, false, 0, 0);
+
+        // Set the varying vertex coordinates.
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.buffer);
+        gl.vertexAttribPointer(vertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.drawArrays(this.fill ? gl.TRIANGLES : gl.LINES, 0, this.vertices.length / 3);
+
+        // Draw children
+        for(let i = 0; i < this.children.length; ++i) {
+            this.children[i].draw( vertexColor, vertexPosition );
+        }
+    }
+
+    // Applies the supplied matrix as a transformation to this shape. It has
+    // nothing to do with robots or disguises. Very careful not to edit
+    // supplied matrix
+    transform( matrix ) {
+        this.transformMatrix.multiplyLeft( matrix );
+        for(let i = 0; i < this.children.length; ++i) {
+            this.children[i].transform( matrix );
+        }
+    }
+
+    // Getter for transform matrix
+    get matrix() {
+        return this.transformMatrix;
+    }
+
+    addChild( child ) {
+        this.children.push(child);
+        return this;
     }
 }
 class Cube extends Shape {

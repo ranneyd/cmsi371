@@ -161,6 +161,31 @@ class Matrix {
         this.width = b.width;
         return this;
     }
+    // Like multiply, but the argument matrix is now the left one
+    multiplyLeft( a ) {
+        if( a.width !== this.height ) {
+            let msg = `Matrix a must have a width (${a.width}) equal to `
+                    + `matrix b's height(${this.height})`;
+            throw new Error( msg );
+        }
+        let result = [];
+
+        for( let row = 0; row < a.height; ++row ) {
+            let rowObj = [];
+            for( let col = 0; col < this.width; ++col ) {
+                let elem = 0;
+                for( let i = 0; i < a.width; ++i) {
+                    elem += a.matrix[row * a.width + i]
+                          * this.matrix[i * this.width + col];
+                }
+                rowObj.push(elem);
+            }
+            result = result.concat(rowObj);
+        }
+        this.matrix = result;
+        this.height = a.height;
+        return this;
+    }
 
     determinant(){
         if(this.width !== this.height) {
