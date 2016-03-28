@@ -4,7 +4,7 @@
 var myShapes = (GLSLUtilities, gl) => {
     let objects = [];
 
-    const RES = 10;
+    const RES = 50;
     
     let cylinder = new Cylinder( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, RES);
 
@@ -28,7 +28,6 @@ var myShapes = (GLSLUtilities, gl) => {
     let sphere = new Shape( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 } );
 
     scale = 1;
-    let up = 0;
     let lastAngle = 0;
     let step = Math.PI / (2 * RES);
     let angle = step;
@@ -36,11 +35,11 @@ var myShapes = (GLSLUtilities, gl) => {
         let upperToLower = Math.cos(angle) / Math.cos(lastAngle);
         let part = new FrustomCylinder( GLSLUtilities, gl, true, { r: 1 * i / RES, g: 0.0, b: 0.0 }, RES, upperToLower);
         
-        let h = Math.cos(lastAngle) / RES;
-        up += h;
+        let sin = Math.sin(angle);
+        let sinLast = Math.sin(lastAngle);
         
-        part.transform( Matrix.scale(scale, h , scale) );
-        part.transform( Matrix.translate(0, up ,0) );
+        part.transform( Matrix.scale(scale, sin - sinLast , scale) );
+        part.transform( Matrix.translate(0, sin ,0) );
 
         scale *= upperToLower;
         lastAngle += step;
@@ -57,11 +56,12 @@ var myShapes = (GLSLUtilities, gl) => {
     }
     // Do the caps
     {
-        let top = new Cone( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, RES );
+        let top = new Cone( GLSLUtilities, gl, true, { r: 1, g: 0.0, b: 0.0 }, RES );
         
-        let h = Math.cos(lastAngle) / RES;
-        top.transform( Matrix.scale(scale, h, scale) );
-        top.transform( Matrix.translate(0, up + h,0) );
+        let sin = Math.sin(angle);
+        let sinLast = Math.sin(lastAngle);
+        top.transform( Matrix.scale(scale, sin - sinLast, scale) );
+        top.transform( Matrix.translate(0, 1,0) );
 
         sphere.addChild( top );
 
@@ -77,10 +77,10 @@ var myShapes = (GLSLUtilities, gl) => {
 
 
 
-    scale = 1;
+    scale = 0.5;
     // For some reason I can't explain, this only looks right when scaled
     // vertically by 1.5
-    sphere.transform( Matrix.scale(scale, 1.5 * scale, scale));
+    sphere.transform( Matrix.scale(scale,  scale, scale));
 
     objects.push( sphere );
 
