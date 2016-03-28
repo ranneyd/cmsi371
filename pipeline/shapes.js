@@ -277,7 +277,7 @@ class Cone extends RoundShape {
         return shape;
     }
 }
-class FrustomCylinder extends RoundShape {
+class FrustumCylinder extends RoundShape {
     constructor( GLSL, gl, fill, color, resolution, upperToLower ) {
         super( GLSL, gl, fill, color, resolution );
 
@@ -319,7 +319,7 @@ class FrustomCylinder extends RoundShape {
         this.finish();
     }
     duplicate(){
-        let shape = new FrustomCylinder( 
+        let shape = new FrustumCylinder( 
             this.GLSL, 
             this.gl, 
             this.fill, 
@@ -332,7 +332,7 @@ class FrustomCylinder extends RoundShape {
     }
 }
 
-class Cylinder extends FrustomCylinder{
+class Cylinder extends FrustumCylinder{
     constructor( GLSL, gl, fill, color, resolution ) {
         super( GLSL, gl, fill, color, resolution, 1);
     }
@@ -353,7 +353,7 @@ class Sphere extends RoundShape{
     constructor( GLSL, gl, fill, color, resolution ) {
         super( GLSL, gl, fill, color, resolution);
         
-        // Generate the sphere as stacked frustom cylinders. Each one gets
+        // Generate the sphere as stacked frustum cylinders. Each one gets
         // smaller as we go up the sphere. Each time we make a duplicate and
         // rotate it pi radians to make the bottom half of the sphere
 
@@ -372,7 +372,7 @@ class Sphere extends RoundShape{
             // previous slice's top width
             let upperToLower = Math.cos(angle) / Math.cos(lastAngle);
             
-            let part = new FrustomCylinder(
+            let part = new FrustumCylinder(
                 GLSLUtilities, 
                 gl, 
                 fill, 
