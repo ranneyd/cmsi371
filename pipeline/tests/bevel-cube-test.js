@@ -1,5 +1,5 @@
 /*
- * Unit tests for our cube object.
+ * Unit tests for our bevel cube object.
  */
 $(function () {
     // Grab the WebGL rendering context.
@@ -47,15 +47,15 @@ $(function () {
     // All done --- tell WebGL to use the shader program from now on.
     gl.useProgram(shaderProgram);
 
-    test("Cube", function () {
-        let shape = new Cube(GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 });
+    test("Bevel Cube", function () {
+        let shape = new BevelCube(GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, 0.5, 0.5);
         equal(shape, shape, "Should be equal to self");
         notEqual(shape.duplicate(), shape, "Should not be equal to a duplicate");
 
-        deepEqual(shape.vertices.length, 108, "Vertices length");
+        deepEqual(shape.vertices.length, 252, "Vertices length");
 
-        shape = new Cube(GLSLUtilities, gl, false, { r: 0.0, g: 0.0, b: 0.5 });
-        deepEqual(shape.vertices.length, 216, "Vertices length (not filled)");
+        shape = new BevelCube(GLSLUtilities, gl, false, { r: 0.0, g: 0.0, b: 0.5 }, 0.5, 0.5);
+        deepEqual(shape.vertices.length, 504, "Vertices length (not filled)");
 
         let scale = Matrix.scale(0.5,0.5,0.5);
         shape.transform( scale );

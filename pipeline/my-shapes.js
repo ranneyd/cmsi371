@@ -29,7 +29,13 @@ var myShapes = (GLSLUtilities, gl) => {
 
     sphere.transform( Matrix.scale(scale,  scale, scale));
 
-    objects.push( sphere );
+    //objects.push( sphere );
+
+    let bevelDude = new BevelCube( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 1 }, 0.5, 0.5 );
+
+    bevelDude.transform( Matrix.scale(scale,  scale, scale));
+
+    objects.push(bevelDude);
 
     return objects;
 }

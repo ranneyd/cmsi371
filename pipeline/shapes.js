@@ -182,7 +182,7 @@ class Cube extends Shape {
     constructor( GLSL, gl, fill, color ) {
         super( GLSL, gl, fill, color );
         
-        const [S, X, Y, Z] = [0.5, 0, 0, 0];
+        const [S, X, Y, Z] = [1, this.X, this.Y, this.Z];
         this.vertices = [
             // Front face
             [X, Y, Z], //0 NW
@@ -221,6 +221,104 @@ class Cube extends Shape {
     }
     duplicate(){
         let shape = new Cube( this.GLSL, this.gl, this.fill, this.color );
+        shape.copy( this );
+        return shape;
+    }
+}
+
+// Cube with "raised edges". Depth is a value less than 1, where 0 produces a
+// standard cube, 1 produces an "empty box", or a hollow cube, and negative
+// values invert the bevel. Values are computed linearly. WidthRatio is the
+// ratio of the width of the bevel to the radius of the cube. A widthRatio of
+// 1 makes a bevel the entire width of the cube, or a standard cube (with more
+// triangles), a widthRatio of 0 produces edges that are just faces with no
+// width, and everything in between is linear. Thus a widthRatio of 0.5 would
+// make a bevel half the distance to the center.
+class BevelCube extends Shape{
+    constructor( GLSL, gl, fill, color, D, widthRatio) {
+        super( GLSL, gl, fill, color );
+        
+        const [S, W, X, Y, Z] = [1, widthRatio / 2, this.X, this.Y, this.Z];
+
+        this.vertices = [
+            // Front face
+            [X, Y, Z],                      //0 NW
+            [X, Y - S, Z],                  //1 SW
+            [X - S, Y, Z],                  //2 NE
+            [X - S, Y - S, Z],              //3 SE
+            // Inner front face
+            [X - W, Y, Z - W],              //4 NW
+            [X - W, Y - D, Z - W],          //5 SW
+            [X + W - S, Y, Z - W],          //6 NE
+            [X + W - S, Y - D, Z - W],      //7 SE
+            // Rear face
+            [X, Y, Z - S],                  //8 NW
+            [X, Y - S, Z - S],              //9 SW
+            [X - S, Y, Z - S],              //10 NE
+            [X - S, Y - S, Z - S],          //11 SE
+            // Inner rear face
+            [X - W, Y, Z + W - S],          //12 NW
+            [X - W, Y - D, Z + W - S],      //13 SW
+            [X + W - S, Y, Z + W - S],      //14 NE
+            [X + W - S, Y - D, Z + W - S],  //15 SE
+        ];
+
+        this.indices = [
+            // front
+            [0, 1, 2],
+            [1, 2, 3],
+            // inner front
+            [4, 5, 6],
+            [5, 6, 7],
+            // rear
+            [10, 11, 9],
+            [10, 9, 8],
+            // inner rear
+            [14, 15, 13],
+            [14, 13, 12],
+            // bottom,
+            [3, 9, 11],
+            [3, 1, 9],
+            // inner bottom
+            [7, 13, 15],
+            [7, 5, 13],
+            // left
+            [0, 9, 1],
+            [8, 9, 0],
+            // Inner left
+            [4, 13, 5],
+            [12, 13, 4],
+            // right
+            [2, 3, 11],
+            [10, 2, 11],
+            // Inner right
+            [6, 7, 15],
+            [14, 6, 15],
+            // top left
+            [8, 0, 4],
+            [8, 4, 12],
+            // top rear
+            [8, 12, 14],
+            [8, 14, 10],
+            // top right
+            [10, 14, 6],
+            [10, 6, 2],
+            // top front
+            [0, 4, 6],
+            [0, 6, 2],
+        ];
+
+        this.finish();
+    }
+    duplicate(){
+        let shape = new BevelCube( 
+            this.GLSL, 
+            this.gl, 
+            this.fill, 
+            this.color, 
+            this.depth, 
+            this.widthRatio 
+        );
         shape.copy( this );
         return shape;
     }
