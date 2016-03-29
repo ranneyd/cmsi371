@@ -115,7 +115,7 @@
     // Draw the initial scene.
     drawScene();
     // Vector representing rotation axis [x, y, z]
-    const ROTATION_VECTOR = [1, -1, 1];
+    const ROTATION_VECTOR = [1,1,1];
     // Set the rotation matrix to actually rotate
     rotateMatrix = Matrix.rotate(0.03, ...ROTATION_VECTOR);
 

@@ -388,7 +388,7 @@ class FrustumCylinder extends RoundShape {
 
         let thetaDelta = 2 * Math.PI / resolution;
         let angle = 0;
-        for(let i = 0; i < resolution + 2; ++i) {
+        for(let i = 0; i < resolution + 1; ++i) {
             this.vertices.push(
                 [this.A * Math.cos(angle) , this.Y , this.A * Math.sin(angle)]
             );
@@ -396,7 +396,7 @@ class FrustumCylinder extends RoundShape {
                 [this.B * Math.cos(angle) , this.Y - this.H , this.B * Math.sin(angle)]
             );
 
-            if( i > 1 ) {
+            if( i > 0 ) {
                 let verts = {
                     upper: {
                         left: 2 * (i - 1),
@@ -534,6 +534,80 @@ class Sphere extends RoundShape{
             this.color, 
             this.resolution
         );
+        shape.copy( this );
+        return shape;
+    }
+}
+
+// This is kind of like a cylinder, but one side comes inward. So it can look
+// like a D or a U depending on "depth"
+class Smile extends RoundShape {
+    constructor( GLSL, gl, fill, color, resolution, D ) {
+        super( GLSL, gl, fill, color, resolution );
+        
+        this.R = 1
+        this.H = 1;
+
+        this.vertices = [];
+        this.indices = [];
+
+        let thetaDelta = 2 * Math.PI / resolution;
+        let angle = 0;
+        let i = 0;
+        for(; i < resolution + 1; ++i) {
+            let R = this.R;
+            if( i >= resolution / 2) {
+                R = -D;
+            }
+            this.vertices.push(
+                [this.R * Math.cos(angle) , this.Y , R * Math.sin(angle)]
+            );
+            this.vertices.push(
+                [this.R * Math.cos(angle) , this.Y - this.H , R * Math.sin(angle)]
+            );
+
+            if( i > 0 ) {
+                let verts = {
+                    upper: {
+                        left: 2 * (i - 1),
+                        right: 2 * i
+                    },
+                    lower: {
+                        left: 2 * (i - 1) + 1,
+                        right: 2 * i + 1
+                    }
+                }
+                this.indices.push([verts.upper.left, verts.lower.left, verts.upper.right]);
+                this.indices.push([verts.upper.right, verts.lower.left, verts.lower.right]);
+            }
+
+            angle += thetaDelta;
+        }
+        let verts = {
+            upper: {
+                left: 2 * (i - 1),
+                right: 0
+            },
+            lower: {
+                left: 2 * (i - 1) + 1,
+                right: 1
+            }
+        }
+        this.indices.push([verts.upper.left, verts.lower.left, verts.upper.right]);
+        this.indices.push([verts.upper.right, verts.lower.left, verts.lower.right]);
+
+        let res2 = 2 * resolution;
+        for(i = 0; i < resolution; ++i) {
+            let i2 = 2 * i;
+            this.indices.push([i2 + 3, i2 + 1, res2 - i2 - 1]);
+            this.indices.push([i2 + 4, i2 + 2, res2 - i2 - 2]);
+        }
+
+
+        this.finish();
+    }
+    duplicate(){
+        let shape = new Smile( this.GLSL, this.gl, this.fill, this.color, this.resolution, this.depth );
         shape.copy( this );
         return shape;
     }

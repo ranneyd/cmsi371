@@ -35,7 +35,13 @@ var myShapes = (GLSLUtilities, gl) => {
 
     bevelDude.transform( Matrix.scale(scale,  scale, scale));
 
-    objects.push(bevelDude);
+    //objects.push(bevelDude);
+
+    let smile = new Smile( GLSLUtilities, gl, false, { r: 0.0, g: 0.0, b: 1 }, RES, 0 );
+
+    smile.transform( Matrix.scale(scale,  scale, scale));
+
+    objects.push(smile);
 
     return objects;
 }
