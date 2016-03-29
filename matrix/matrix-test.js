@@ -337,4 +337,30 @@ $(function () {
         );
         
     });
+    test("OrthoProjection", function() {
+        let ortho123456 = Matrix.orthoProject(1,2,3,4,5,6);
+        let expected = new Matrix([2,0,0,-3,0,2,0,-7,0,0,-2,-11,0,0,0,1],4,4);
+        deepEqual(ortho123456, expected, "Orthographic Projection: 1, 2, 3, 4, 5, 6");
+
+        let orthoNeg123456 = Matrix.orthoProject(-1,-2,-3,-4,-5,-6);
+        expected = new Matrix([-2,0,0,-3,0,-2,0,-7,0,0,2,-11,0,0,0,1],4,4);
+        deepEqual(orthoNeg123456, expected, "Orthographic Projection: -1, -2, -3, -4, -5, -6");
+
+        let identity = Matrix.orthoProject(-1,1,-1,1,1,-1);
+        expected = new Matrix([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],4,4);
+        deepEqual(identity, expected, "Orthographic Projection: identity");
+    });
+    test("FrustumProjection", function() {
+        let frustum123456 = Matrix.frustumProject(1,2,3,4,5,6);
+        let expected = new Matrix([10,0,3,0,0,10,7,0,0,0,-11,-60,0,0,-1,0],4,4);
+        deepEqual(frustum123456, expected, "Frustum Projection: 1, 2, 3, 4, 5, 6");
+
+        let frustumNeg123456 = Matrix.frustumProject(-1,-2,-3,-4,-5,-6);
+        expected = new Matrix([10,0,3,0,0,10,7,0,0,0,-11,60,0,0,-1,0],4,4);
+        deepEqual(frustumNeg123456, expected, "Frustum Projection: -1, -2, -3, -4, -5, -6");
+
+        let identity = Matrix.frustumProject(-1,1,-1,1,1,-1);
+        expected = new Matrix([1,0,0,0,0,1,0,0,0,0,0,-1,0,0,-1,0],4,4);
+        deepEqual(identity, expected, "Frustum Projection: identity");
+    });
 });

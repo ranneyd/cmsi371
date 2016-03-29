@@ -25,7 +25,7 @@ var myShapes = (GLSLUtilities, gl) => {
     //objects.push(cylinder);
 
 
-    let sphere = new Sphere( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, RES );
+    let sphere = new Sphere( GLSLUtilities, gl, false, { r: 0.0, g: 0.0, b: 0.5 }, RES );
 
     sphere.transform( Matrix.scale(scale,  scale, scale));
 
