@@ -21,17 +21,17 @@
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.viewport(0, 0, canvas.width, canvas.height);
 
-    var globalTransform = Matrix.scale(0.5, 0.5, 0.5);
+    var globalTransform = Matrix.scale(0.9, 0.9, 0.9);
 
     // Build the objects to display.
-    var sphere = Shapes.sphere(50);
+    var sphere = [Shapes.cube()];
     var objectsToDraw = [];
     for(let part of sphere) {
         objectsToDraw.push({
             vertices: Shapes.toRawTriangleArray(part),
 
             // 12 triangles in all.
-            color: part.color || { r: 1.0, g: 0.0, b: 0.0 },
+            color: part.color || { r: 1.0, g: 0.75, b: 0.5 },
 
             // We make the specular reflection be white.
             specularColor: { r: 1.0, g: 1.0, b: 1.0 },
@@ -220,16 +220,20 @@
     var light1X = 1000.0;
     var light1Y = 1000.0;
     var light1Z = 1000.0;
-    var light2X = 1000.0;
-    var light2Y = 1000.0;
-    var light2Z = 1000.0;
+    var light2X = -1000.0;
+    var light2Y = -1000.0;
+    var light2Z = -1000.0;
+    var lightR = 1.0;
+    var lightG = 1.0;
+    var lightB = 1.0;
+
 
     // Set up our one light source and its colors.
     gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
-    //gl.uniform4fv(lightPosition2, [light1X, light1Y, light1Z, 1.0]);
+    gl.uniform4fv(lightPosition2, [light2X, light2Y, light2Z, 1.0]);
 
-    gl.uniform3fv(lightDiffuse, [1.0, 1.0, 1.0]);
-    gl.uniform3fv(lightSpecular, [1.0, 1.0, 1.0]);
+    gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
+    gl.uniform3fv(lightSpecular, [0.1, 0.1, 0.1]);
 
 
     // Instead of animation, we do interaction: let the mouse control rotation.
@@ -268,6 +272,61 @@
             let slide = ui.value / 100;
             light1Z = 1000.0 - slide * 2000.0;
             gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
+            drawScene();
+        }
+    });
+
+    $( "#light2X" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            light2X = 1000.0 - slide * 2000.0;
+            gl.uniform4fv(lightPosition, [light2X, light2Y, light2Z, 1.0]);
+            drawScene();
+        }
+    });
+    $( "#light2Y" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            light2Y = 1000.0 - slide * 2000.0;
+            gl.uniform4fv(lightPosition, [light2X, light2Y, light2Z, 1.0]);
+            drawScene();
+        }
+    });
+    $( "#light2Z" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            light2Z = 1000.0 - slide * 2000.0;
+            gl.uniform4fv(lightPosition, [light2X, light2Y, light2Z, 1.0]);
+            drawScene();
+        }
+    });
+    $( "#lightR" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            lightR = slide;
+            gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
+            drawScene();
+        }
+    });
+    $( "#lightG" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            lightG = slide;
+            gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
+            drawScene();
+        }
+    });
+    $( "#lightB" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            lightB = slide;
+            gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
             drawScene();
         }
     });

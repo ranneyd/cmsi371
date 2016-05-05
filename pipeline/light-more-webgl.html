@@ -27,6 +27,13 @@
       <div id="light1Y"></div>
       <p>Z</p>
       <div id="light1Z"></div>
+      <h1>Light 2</h1>
+      <p>X</p>
+      <div id="light2X"></div>
+      <p>Y</p>
+      <div id="light2Y"></div>
+      <p>Z</p>
+      <div id="light2Z"></div>
     </div>
 
     <!-- Note the rectangular canvas now. -->
@@ -34,6 +41,16 @@
       Sorry, your web browser does not appear to support
       the <code>canvas</code> element, either.
     </canvas>
+
+    <div class="controls">
+      <h1>Color</h1>
+      <p>R</p>
+      <div id="lightR"></div>
+      <p>G</p>
+      <div id="lightG"></div>
+      <p>B</p>
+      <div id="lightB"></div>
+    </div>
 
     <!-- jQuery makes some things more convenient. -->
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -154,7 +171,7 @@
           // Use h = normalize(l + e) for the Blinn-Phong approximation.
           vec3 r = 2.0 * dot(l, n) * n - l;
           vec3 r2 = 2.0 * dot(l2, n) * n - l2;
-          float rDotMax = max(dot(r, e), dot(r2, e));
+          float rDotMax = max(dot(l, e), dot(l2, e));
 
           // Figure out the color of the diffuse light that lands on the vertex.
           vec3 diffuseProduct = fragmentDiffuseColor * lightDiffuse;
