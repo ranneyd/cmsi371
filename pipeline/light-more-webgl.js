@@ -24,9 +24,10 @@
     var globalTransform = Matrix.scale(0.9, 0.9, 0.9);
 
     // Build the objects to display.
-    var sphere = [Shapes.cube()];
+    //var shape = Shapes.sphere(50);
+    var shape = [Shapes.cube()];
     var objectsToDraw = [];
-    for(let part of sphere) {
+    for(let part of shape) {
         objectsToDraw.push({
             vertices: Shapes.toRawTriangleArray(part),
 
@@ -46,6 +47,7 @@
             matrix: part.matrix
         });
     };
+
 
     // Pass the vertices to WebGL.
     for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
@@ -226,14 +228,16 @@
     var lightR = 1.0;
     var lightG = 1.0;
     var lightB = 1.0;
-
+    var specR = 0.3;
+    var specG = 0.3;
+    var specB = 0.3;
 
     // Set up our one light source and its colors.
     gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
     gl.uniform4fv(lightPosition2, [light2X, light2Y, light2Z, 1.0]);
 
     gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
-    gl.uniform3fv(lightSpecular, [0.1, 0.1, 0.1]);
+    gl.uniform3fv(lightSpecular, [specR, specG, specB]);
 
 
     // Instead of animation, we do interaction: let the mouse control rotation.
@@ -281,7 +285,7 @@
         slide: function( event, ui ) {
             let slide = ui.value / 100;
             light2X = 1000.0 - slide * 2000.0;
-            gl.uniform4fv(lightPosition, [light2X, light2Y, light2Z, 1.0]);
+            gl.uniform4fv(lightPosition2, [light2X, light2Y, light2Z, 1.0]);
             drawScene();
         }
     });
@@ -290,7 +294,7 @@
         slide: function( event, ui ) {
             let slide = ui.value / 100;
             light2Y = 1000.0 - slide * 2000.0;
-            gl.uniform4fv(lightPosition, [light2X, light2Y, light2Z, 1.0]);
+            gl.uniform4fv(lightPosition2, [light2X, light2Y, light2Z, 1.0]);
             drawScene();
         }
     });
@@ -299,7 +303,7 @@
         slide: function( event, ui ) {
             let slide = ui.value / 100;
             light2Z = 1000.0 - slide * 2000.0;
-            gl.uniform4fv(lightPosition, [light2X, light2Y, light2Z, 1.0]);
+            gl.uniform4fv(lightPosition2, [light2X, light2Y, light2Z, 1.0]);
             drawScene();
         }
     });
@@ -328,6 +332,66 @@
             lightB = slide;
             gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
             drawScene();
+        }
+    });
+
+    $( "#lightIntensity" ).slider({
+        value: 100,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            lightR = slide;
+            lightG = slide;
+            lightB = slide;
+            gl.uniform3fv(lightDiffuse, [lightR, lightG, lightB]);
+            drawScene();
+
+            $("#lightR").slider({value: ui.value});
+            $("#lightG").slider({value: ui.value});
+            $("#lightB").slider({value: ui.value});
+        }
+    });
+
+    $( "#specR" ).slider({
+        value: 30,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            specR = slide;
+            gl.uniform3fv(lightSpecular, [specR, specG, specB]);
+            drawScene();
+        }
+    });
+    $( "#specG" ).slider({
+        value: 30,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            specG = slide;
+            gl.uniform3fv(lightSpecular, [specR, specG, specB]);
+            drawScene();
+        }
+    });
+    $( "#specB" ).slider({
+        value: 30,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            specB = slide;
+            gl.uniform3fv(lightSpecular, [specR, specG, specB]);
+            drawScene();
+        }
+    });
+
+    $( "#specIntensity" ).slider({
+        value: 30,
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            specR = slide;
+            specG = slide;
+            specB = slide;
+            gl.uniform3fv(lightSpecular, [specR, specG, specB]);
+            drawScene();
+
+            $("#specR").slider({value: ui.value});
+            $("#specG").slider({value: ui.value});
+            $("#specB").slider({value: ui.value});
         }
     });
 
