@@ -399,4 +399,4 @@
     // Draw the initial scene.
     drawScene();
 
-}(document.getElementById("light-more-webgl")));
+}(document.getElementById("light-even-more-webgl")));
