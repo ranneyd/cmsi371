@@ -4,44 +4,30 @@
 var myShapes = (GLSLUtilities, gl) => {
     let objects = [];
 
-    const RES = 50;
-    
-    let cylinder = new Cylinder( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 0.5 }, RES);
-
-    let cap = new Cone( GLSLUtilities, gl, true, { r: 0.5, g: 0.0, b: 0.0 }, RES);
-    cap.transform( Matrix.scale(1, 0, 1) );
-
-    let botCap = cap.duplicate();
-    botCap.color = { r: 0.0, g: 0.5, b: 0.0 };
-    botCap.transform( Matrix.translate(0, -1, 0) );
-
-    cylinder.addChild(cap);
-    cylinder.addChild(botCap);
+    const RES = 30;
 
     let scale = 0.5;
-    cylinder.transform( Matrix.scale(scale, scale, scale) );
-    cylinder.transform( Matrix.translate(-0.5, -0.5, -0.5) );
 
-    //objects.push(cylinder);
+    let leftEye = new Sphere( GLSLUtilities, gl, true, { r: 1, g: 1, b: 0 }, RES );
+    let rightEye = new Sphere( GLSLUtilities, gl, true, { r: 1, g: 0, b: 1 }, RES );
+    let eyeScale = scale * 0.4;
+    leftEye.transform( Matrix.scale(eyeScale,  eyeScale, eyeScale));
+    leftEye.transform( Matrix.translate(-scale*0.6, 0, -scale*0.9));
+
+    rightEye.transform( Matrix.scale(eyeScale,  eyeScale, eyeScale));
+    rightEye.transform( Matrix.translate(scale*0.6, 0, -scale*0.9));
 
 
-    let sphere = new Sphere( GLSLUtilities, gl, false, { r: 0.0, g: 0.0, b: 0.5 }, RES );
+    let head = new Sphere( GLSLUtilities, gl, true, { r: 1, g: 0.8, b: 0 }, RES );
 
-    sphere.transform( Matrix.scale(scale,  scale, scale));
+    head.transform( Matrix.scale(scale,  scale, scale));
 
-    objects.push( sphere );
+    head.addChild(leftEye);
+    head.addChild(rightEye);
 
-    let bevelDude = new BevelCube( GLSLUtilities, gl, true, { r: 0.0, g: 0.0, b: 1 }, 0.5, 0.5 );
+    objects.push( head );
 
-    bevelDude.transform( Matrix.scale(scale,  scale, scale));
 
-    //objects.push(bevelDude);
-
-    let smile = new Smile( GLSLUtilities, gl, false, { r: 0.0, g: 0.0, b: 1 }, RES, 0 );
-
-    smile.transform( Matrix.scale(scale,  scale, scale));
-
-    //objects.push(smile);
 
     return objects;
 }

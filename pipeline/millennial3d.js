@@ -66,66 +66,44 @@
         // Display the objects.
         for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
             let shape = objectsToDraw[i];
-            shape.transform(rotateMatrix);
+            shape.transform(rotationMatrix);
             shape.draw( shaderProgram );
         }
 
         // All done.
         gl.flush();
     };
-
     /*
-     * Animates the scene.
+     * Performs rotation calculations.
      */
-    var animationActive = false;
-    var previousTimestamp = null;
-    // Make it the identity matrix at the beginning
-    let rotateMatrix = new Matrix();
 
-    var advanceScene = function (timestamp) {
-        // Check if the user has turned things off.
-        if (!animationActive) {
-            return;
-        }
-
-        // Initialize the timestamp.
-        if (!previousTimestamp) {
-            previousTimestamp = timestamp;
-            window.requestAnimationFrame(advanceScene);
-            return;
-        }
-
-        // Check if it's time to advance.
-        var progress = timestamp - previousTimestamp;
-        if (progress < 30) {
-            // Do nothing if it's too soon.
-            window.requestAnimationFrame(advanceScene);
-            return;
-        }
-
-        // All clear.
+    var rotationAroundX = 0.0;
+    var rotationAroundY = 0.0;
+    var rotationMatrix = new Matrix();
+    var rotateScene = function (event) {
+        rotationAroundX = xRotationStart - yDragStart + event.clientY;
+        rotationAroundY = yRotationStart - xDragStart + event.clientX;
+        rotationMatrix = new Matrix();
+        rotationMatrix.multiplyLeft(Matrix.rotate(rotationAroundX*0.001, 1.0, 0.0, 0.0));
+        rotationMatrix.multiplyLeft(Matrix.rotate(rotationAroundY*0.001, 0.0, 1.0, 0.0));
         drawScene();
-
-
-        // Request the next frame.
-        previousTimestamp = timestamp;
-        window.requestAnimationFrame(advanceScene);
     };
+    // Instead of animation, we do interaction: let the mouse control rotation.
+    var xDragStart;
+    var yDragStart;
+    var xRotationStart;
+    var yRotationStart;
+    $(canvas).mousedown(function (event) {
+        xDragStart = event.clientX;
+        yDragStart = event.clientY;
+        xRotationStart = 0;
+        yRotationStart = 0;
+        $(canvas).mousemove(rotateScene);
+    }).mouseup(function (event) {
+        $(canvas).unbind("mousemove");
+    });
 
     // Draw the initial scene.
     drawScene();
-    // Vector representing rotation axis [x, y, z]
-    const ROTATION_VECTOR = [1,1,1];
-    // Set the rotation matrix to actually rotate
-    rotateMatrix = Matrix.rotate(0.03, ...ROTATION_VECTOR);
-
-    // Set up the rotation toggle: clicking on the canvas does it.
-    $("#rotate").click(function () {
-        animationActive = !animationActive;
-        if (animationActive) {
-            previousTimestamp = null;
-            window.requestAnimationFrame(advanceScene);
-        }
-    });
 
 }(document.getElementById("hello-webgl")));
