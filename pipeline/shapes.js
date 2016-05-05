@@ -177,7 +177,7 @@ var Shapes = {
 
         // Angle increases by the step every time
         let lastAngle = 0;
-        let step = Math.PI / (2 * resolution);
+        let step = (Math.PI / 2) / resolution;
         let angle = step;
 
         let children = [];
@@ -214,24 +214,26 @@ var Shapes = {
             children.push(bottomPart);
         }
         // Do the caps
+        {
+            let top = Shapes.cone(resolution);
+            top.color = {r: 0.0, b: 1.0, g: 0.0};
 
-        let top = Shapes.cone(resolution);
-        top.color = {r: 0.0, b: 1.0, g: 0.0};
+            let sin = Math.sin(angle);
+            let sinLast = Math.sin(lastAngle);
+            top.matrix.scale(scale, sin - sinLast, scale);
+            top.matrix.translate(0, 1, 0);
 
-        let sin = Math.sin(angle);
-        let sinLast = Math.sin(lastAngle);
-        top.matrix.scale(scale, sin - sinLast, scale);
-        top.matrix.translate(0, 1, 0);
+            children.push( top );
 
-        children.push( top );
+            let bot = Shapes.cone(resolution);
+            bot.color = {r: 0.0, b: 0.0, g: 1.0};
 
-        let bot = Shapes.cone(resolution);
-        bot.color = {r: 0.0, b: 0.0, g: 1.0};
+            //bot.matrix.scale(scale, sin - sinLast, scale);
+            bot.matrix.scale(1, -1, 1);
+            bot.matrix.translate(0, -3, 0);
 
-        //bot.matrix.scale(scale, sin - sinLast, scale);
-        bot.matrix.translate(0, -2, 0);
-
-        children.push(bot);
+            children.push(bot);
+        }
 
         return children;
     },
