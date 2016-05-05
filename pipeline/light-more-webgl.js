@@ -24,7 +24,8 @@
     var globalTransform = Matrix.scale(0.9, 0.9, 0.9);
 
     // Build the objects to display.
-    //var shape = Shapes.sphere(50);
+    // var shape = Shapes.sphere(50);
+    // var shape = [Shapes.bevelCube(0.5, 0.5)];
     var shape = [Shapes.cube()];
     var objectsToDraw = [];
     for(let part of shape) {
