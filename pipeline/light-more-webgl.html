@@ -4,6 +4,7 @@
     <meta charset="UTF-8"/>
     <title>More Normals and Specular Lighting in WebGL</title>
     <link rel="stylesheet" href="light-more-webgl.css" />
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
   </head>
   <body>
     <h1>More Normals and Specular Lighting in WebGL</h1>
@@ -16,6 +17,18 @@
     <p>This page demonstrates an approach toward automatically generating normals plus the
       implementation of specular lighting in WebGL.</p>
 
+
+
+    <div class="controls">
+      <h1>Light 1</h1>
+      <p>X</p>
+      <div id="light1X"></div>
+      <p>Y</p>
+      <div id="light1Y"></div>
+      <p>Z</p>
+      <div id="light1Z"></div>
+    </div>
+
     <!-- Note the rectangular canvas now. -->
     <canvas id="light-more-webgl" width="1024" height="512">
       Sorry, your web browser does not appear to support
@@ -24,6 +37,7 @@
 
     <!-- jQuery makes some things more convenient. -->
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
     <!-- GLSLUtilities is a starting point for holding functionality that
          is common to many WebGL programs. -->

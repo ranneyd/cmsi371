@@ -49,7 +49,9 @@ var Shapes = {
                 [ 2, 11, 9 ],
                 [ 5, 2, 9 ],
                 [ 11, 2, 7 ]
-            ]
+            ],
+
+            matrix: new Matrix()
         };
     },
 
@@ -82,11 +84,44 @@ var Shapes = {
                 [ 6, 7, 2 ],
                 [ 4, 7, 6 ],
                 [ 5, 4, 6 ]
-            ]
+            ],
+
+            matrix: new Matrix()
         };
     },
-    cylinder: function (resolution) {
-        const A = 1;
+    cone: function(resolution) {
+        const H = 1;
+        const R = 1;
+        const X = 0;
+        const Y = 0;
+        const Z = 0;
+
+        vertices = [
+            [ X, Y, Z]
+        ];
+        indices = [];
+
+        let thetaDelta = 2 * Math.PI / resolution;
+        let angle = 0;
+        for(let i = 1; i < resolution + 1; ++i) {
+            vertices.push(
+                [R * Math.cos(angle) , Y - H , R * Math.sin(angle)]
+            );
+            if( i > 1 ) {
+                indices.push([0, i - 1, i]);
+            }
+            angle += thetaDelta;
+        }
+        indices.push([0, resolution, 1]);
+
+        return {
+            vertices: vertices,
+            indices: indices,
+            matrix: new Matrix()
+        };
+    },
+    // A: ratio of top to bottom
+    frustumCylinder: function (A, resolution) {
         const B = 1;
         const H = 1;
         const X = 1;
@@ -125,10 +160,81 @@ var Shapes = {
         }
         return {
             vertices: vertices,
-            indices: indices
+            indices: indices,
+            matrix: new Matrix()
         };
     },
+    cylinder: function(resolution){
+        return Shapes.frustumCylinder(1, resolution);
+    },
+    sphere: function(resolution) {
+        // Generate the sphere as stacked frustum cylinders. Each one gets
+        // smaller as we go up the sphere. Each time we make a duplicate and
+        // rotate it pi radians to make the bottom half of the sphere
 
+        // Scale of the current slice of sphere. Begins at 1 and gets smaller
+        let scale = 1;
+
+        // Angle increases by the step every time
+        let lastAngle = 0;
+        let step = Math.PI / (2 * resolution);
+        let angle = step;
+
+        let children = [];
+
+        for( let i = 1; i < resolution; ++i ) {
+            // Cosine gives us horizontal size. Each slice has a ratio of top
+            // to bottom proportional to the cosine of the new angle to the
+            // previous angle. This way each slice has a bottom width of the
+            // previous slice's top width
+            let upperToLower = Math.cos(angle) / Math.cos(lastAngle);
+
+            let part = Shapes.frustumCylinder(upperToLower, resolution);
+
+            // Sine is vertical size. Same logic as before basically.
+            let sin = Math.sin(angle);
+            let sinLast = Math.sin(lastAngle);
+
+            part.matrix.scale(scale, sin - sinLast , scale);
+            // I do not know why this is 2 *. But it doesn't work without it
+            part.matrix.translate(0, 2 * sinLast, 0);
+
+            // We reduce the scale using this same ratio
+            scale *= upperToLower;
+            lastAngle += step;
+            angle += step;
+
+            let bottomPart = Shapes.frustumCylinder(1/upperToLower, resolution);
+            bottomPart.matrix.scale(scale, sin - sinLast , scale);
+            // I do not know why this is * 2. But it doesn't work without it
+            bottomPart.matrix.translate(0, -2 * sin, 0);
+
+            children.push(part);
+
+            children.push(bottomPart);
+        }
+        // Do the caps
+
+        let top = Shapes.cone(resolution);
+        top.color = {r: 0.0, b: 1.0, g: 0.0};
+
+        let sin = Math.sin(angle);
+        let sinLast = Math.sin(lastAngle);
+        top.matrix.scale(scale, sin - sinLast, scale);
+        top.matrix.translate(0, 1, 0);
+
+        children.push( top );
+
+        let bot = Shapes.cone(resolution);
+        bot.color = {r: 0.0, b: 0.0, g: 1.0};
+
+        //bot.matrix.scale(scale, sin - sinLast, scale);
+        bot.matrix.translate(0, -2, 0);
+
+        children.push(bot);
+
+        return children;
+    },
     /*
      * Utility function for turning indexed vertices into a "raw" coordinate array
      * arranged as triangles.

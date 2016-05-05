@@ -1,3 +1,4 @@
+'use strict';
 /*
  * For maximum modularity, we place everything within a single function that
  * takes the canvas that it will need.
@@ -20,14 +21,17 @@
     gl.clearColor(0.0, 0.0, 0.0, 0.0);
     gl.viewport(0, 0, canvas.width, canvas.height);
 
+    var globalTransform = Matrix.scale(0.5, 0.5, 0.5);
+
     // Build the objects to display.
-    var cylinder = Shapes.cylinder(50);
-    var objectsToDraw = [
-        {
-            vertices: Shapes.toRawTriangleArray(cylinder),
+    var sphere = Shapes.sphere(50);
+    var objectsToDraw = [];
+    for(let part of sphere) {
+        objectsToDraw.push({
+            vertices: Shapes.toRawTriangleArray(part),
 
             // 12 triangles in all.
-            color: { r: 1.0, g: 0.0, b: 0.0 },
+            color: part.color || { r: 1.0, g: 0.0, b: 0.0 },
 
             // We make the specular reflection be white.
             specularColor: { r: 1.0, g: 1.0, b: 1.0 },
@@ -35,13 +39,13 @@
 
             // Like colors, one normal per vertex.  This can be simplified
             // with helper functions, of course.
-            normals: Shapes.toNormalArray(cylinder),
+            normals: Shapes.toNormalArray(part),
 
             mode: gl.TRIANGLES,
 
-            transform: new Matrix()
-        }
-    ];
+            matrix: part.matrix
+        });
+    };
 
     // Pass the vertices to WebGL.
     for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
@@ -149,7 +153,9 @@
         // Set the shininess.
         gl.uniform1f(shininess, object.shininess);
 
-        gl.uniformMatrix4fv(modelViewMatrix, gl.FALSE, new Float32Array(object.transform.gl));
+        let transform = object.matrix.duplicate().transform(globalTransform);
+
+        gl.uniformMatrix4fv(modelViewMatrix, gl.FALSE, new Float32Array(transform.gl));
 
         // Set the varying normal vectors.
         gl.bindBuffer(gl.ARRAY_BUFFER, object.normalBuffer);
@@ -211,9 +217,16 @@
         10
     ).gl));
 
+    var light1X = 1000.0;
+    var light1Y = 1000.0;
+    var light1Z = 1000.0;
+    var light2X = 1000.0;
+    var light2Y = 1000.0;
+    var light2Z = 1000.0;
+
     // Set up our one light source and its colors.
-    gl.uniform4fv(lightPosition, [500.0, 1000.0, 100.0, 1.0]);
-    gl.uniform4fv(lightPosition2, [0.0, -1000.0, 1000.0, 1.0]);
+    gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
+    //gl.uniform4fv(lightPosition2, [light1X, light1Y, light1Z, 1.0]);
 
     gl.uniform3fv(lightDiffuse, [1.0, 1.0, 1.0]);
     gl.uniform3fv(lightSpecular, [1.0, 1.0, 1.0]);
@@ -232,6 +245,31 @@
         $(canvas).mousemove(rotateScene);
     }).mouseup(function (event) {
         $(canvas).unbind("mousemove");
+    });
+
+    $( "#light1X" ).slider({
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            light1X = 1000.0 - slide * 2000.0;
+            gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
+            drawScene();
+        }
+    });
+    $( "#light1Y" ).slider({
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            light1Y = 1000.0 - slide * 2000.0;
+            gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
+            drawScene();
+        }
+    });
+    $( "#light1Z" ).slider({
+        slide: function( event, ui ) {
+            let slide = ui.value / 100;
+            light1Z = 1000.0 - slide * 2000.0;
+            gl.uniform4fv(lightPosition, [light1X, light1Y, light1Z, 1.0]);
+            drawScene();
+        }
     });
 
     // Draw the initial scene.
