@@ -22,7 +22,8 @@
 
 
     // Build the objects to display.
-    var objectsToDraw = myShapes( GLSLUtilities, gl );
+    var refs = {};
+    var objectsToDraw = myShapes( GLSLUtilities, gl, refs );
 
     // Initialize the shaders.
     var abort = false;
@@ -103,7 +104,29 @@
         $(canvas).unbind("mousemove");
     });
 
+    $("#rotate").click(function(){
+        animate();
+    });
+
+    var smileMatrix = refs.smile.transformMatrix;
+
     // Draw the initial scene.
     drawScene();
+
+    var keyframe = 0;
+    var animate = function(){
+        console.log("lmao" + keyframe);
+        if(keyframe < 100){
+
+            smileMatrix.multiplyLeft(Matrix.scale(1, 100 - 2 * keyframe, 1));
+
+            refs.smile.transformMatrix = Matrix.multiply(Matrix.scale(1, 0.99, 1), smileMatrix);
+
+            drawScene();
+
+            keyframe += 1;
+            requestAnimationFrame(animate);
+        }
+    }
 
 }(document.getElementById("hello-webgl")));

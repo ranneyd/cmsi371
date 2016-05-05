@@ -181,7 +181,7 @@ class Shape{
 class Cube extends Shape {
     constructor( GLSL, gl, fill, color ) {
         super( GLSL, gl, fill, color );
-        
+
         const [S, X, Y, Z] = [1, this.X, this.Y, this.Z];
         this.vertices = [
             // Front face
@@ -237,7 +237,7 @@ class Cube extends Shape {
 class BevelCube extends Shape{
     constructor( GLSL, gl, fill, color, D, widthRatio) {
         super( GLSL, gl, fill, color );
-        
+
         const [S, W, X, Y, Z] = [1, widthRatio / 2, this.X, this.Y, this.Z];
 
         this.vertices = [
@@ -311,13 +311,13 @@ class BevelCube extends Shape{
         this.finish();
     }
     duplicate(){
-        let shape = new BevelCube( 
-            this.GLSL, 
-            this.gl, 
-            this.fill, 
-            this.color, 
-            this.depth, 
-            this.widthRatio 
+        let shape = new BevelCube(
+            this.GLSL,
+            this.gl,
+            this.fill,
+            this.color,
+            this.depth,
+            this.widthRatio
         );
         shape.copy( this );
         return shape;
@@ -335,7 +335,7 @@ class RoundShape extends Shape {
         return this;
     }
     duplicate(){
-        let shape = new RoundShape( 
+        let shape = new RoundShape(
             this.GLSL, this.gl, this.fill, this.color, this.resolution
         );
         shape.copy( this );
@@ -345,7 +345,7 @@ class RoundShape extends Shape {
 class Cone extends RoundShape {
     constructor( GLSL, gl, fill, color, resolution ) {
         super( GLSL, gl, fill, color, resolution );
-        
+
         this.H = 1;
         this.R = 1;
 
@@ -417,13 +417,13 @@ class FrustumCylinder extends RoundShape {
         this.finish();
     }
     duplicate(){
-        let shape = new FrustumCylinder( 
-            this.GLSL, 
-            this.gl, 
-            this.fill, 
-            this.color, 
-            this.resolution, 
-            this.A 
+        let shape = new FrustumCylinder(
+            this.GLSL,
+            this.gl,
+            this.fill,
+            this.color,
+            this.resolution,
+            this.A
         );
         shape.copy( this );
         return shape;
@@ -435,13 +435,13 @@ class Cylinder extends FrustumCylinder{
         super( GLSL, gl, fill, color, resolution, 1);
     }
     duplicate(){
-        let shape = new Cylinder( 
-            this.GLSL, 
-            this.gl, 
-            this.fill, 
-            this.color, 
-            this.resolution, 
-            this.upperToLower 
+        let shape = new Cylinder(
+            this.GLSL,
+            this.gl,
+            this.fill,
+            this.color,
+            this.resolution,
+            this.upperToLower
         );
         shape.copy( this );
         return shape;
@@ -450,7 +450,7 @@ class Cylinder extends FrustumCylinder{
 class Sphere extends RoundShape{
     constructor( GLSL, gl, fill, color, resolution ) {
         super( GLSL, gl, fill, color, resolution);
-        
+
         // Generate the sphere as stacked frustum cylinders. Each one gets
         // smaller as we go up the sphere. Each time we make a duplicate and
         // rotate it pi radians to make the bottom half of the sphere
@@ -469,20 +469,20 @@ class Sphere extends RoundShape{
             // previous angle. This way each slice has a bottom width of the
             // previous slice's top width
             let upperToLower = Math.cos(angle) / Math.cos(lastAngle);
-            
+
             let part = new FrustumCylinder(
-                GLSLUtilities, 
-                gl, 
-                fill, 
-                color, 
-                resolution, 
+                GLSLUtilities,
+                gl,
+                fill,
+                color,
+                resolution,
                 upperToLower
             );
-            
+
             // Sine is vertical size. Same logic as before basically.
             let sin = Math.sin(angle);
             let sinLast = Math.sin(lastAngle);
-            
+
             part.transform( Matrix.scale(scale, sin - sinLast , scale) );
             part.transform( Matrix.translate(0, sin ,0) );
 
@@ -502,14 +502,14 @@ class Sphere extends RoundShape{
         }
         // Do the caps
         {
-            let top = new Cone( 
-                GLSLUtilities, 
-                gl, 
+            let top = new Cone(
+                GLSLUtilities,
+                gl,
                 fill,
-                color, 
+                color,
                 resolution
             );
-            
+
             let sin = Math.sin(angle);
             let sinLast = Math.sin(lastAngle);
             top.transform( Matrix.scale(scale, sin - sinLast, scale) );
@@ -527,11 +527,11 @@ class Sphere extends RoundShape{
         this.finish();
     }
     duplicate() {
-        let shape = new Sphere( 
-            this.GLSL, 
-            this.gl, 
-            this.fill, 
-            this.color, 
+        let shape = new Sphere(
+            this.GLSL,
+            this.gl,
+            this.fill,
+            this.color,
             this.resolution
         );
         shape.copy( this );
@@ -544,7 +544,7 @@ class Sphere extends RoundShape{
 class Smile extends RoundShape {
     constructor( GLSL, gl, fill, color, resolution, D ) {
         super( GLSL, gl, fill, color, resolution );
-        
+
         this.R = 1
         this.H = 1;
 
