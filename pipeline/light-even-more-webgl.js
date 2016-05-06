@@ -23,69 +23,86 @@
 
     var globalTransform = Matrix.scale(0.9, 0.9, 0.9);
 
-    // Build the objects to display.
-    // var shape = Shapes.sphere(50);
-    // var shape = [Shapes.bevelCube(0.5, 0.5)];
-    var shape = [Shapes.cube()];
+    var vertexNormal = false;
+
+    var shapeType = "cone";
+
     var objectsToDraw = [];
-    for(let part of shape) {
-        objectsToDraw.push({
-            vertices: Shapes.toRawTriangleArray(part),
+    // Build the objects to display.
+    var generateShapes = function() {
+        switch(shapeType){
+            case "sphere":
+                var shape = Shapes.sphere(50);
+                break;
+            case "cone":
+                var shape = [Shapes.cone(50)];
+                break;
+            case "beveled":
+                var shape = [Shapes.bevelCube(0.5, 0.5)];
+                break;
+            default:
+                var shape = [Shapes.cube()];
+        }
 
-            // 12 triangles in all.
-            color: part.color || { r: 1.0, g: 0.75, b: 0.5 },
+        for(let part of shape) {
+            objectsToDraw.push({
+                vertices: Shapes.toRawTriangleArray(part),
 
-            // We make the specular reflection be white.
-            specularColor: { r: 1.0, g: 1.0, b: 1.0 },
-            shininess: 16,
+                // 12 triangles in all.
+                color: part.color || { r: 1.0, g: 0.75, b: 0.5 },
 
-            // Like colors, one normal per vertex.  This can be simplified
-            // with helper functions, of course.
-            normals: Shapes.toNormalArray(part),
+                // We make the specular reflection be white.
+                specularColor: { r: 1.0, g: 1.0, b: 1.0 },
+                shininess: 16,
 
-            mode: gl.TRIANGLES,
+                // Like colors, one normal per vertex.  This can be simplified
+                // with helper functions, of course.
+                normals: vertexNormal ? Shapes.toVertexNormalArray(part) : Shapes.toNormalArray(part),
 
-            matrix: part.matrix
-        });
+                mode: gl.TRIANGLES,
+
+                matrix: part.matrix
+            });
+        };
+
+        // Pass the vertices to WebGL.
+        for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
+            objectsToDraw[i].buffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].vertices);
+
+            if (!objectsToDraw[i].colors) {
+                // If we have a single color, we expand that into an array
+                // of the same color over and over.
+                objectsToDraw[i].colors = [];
+                for (var j = 0, maxj = objectsToDraw[i].vertices.length / 3; j < maxj; j += 1) {
+                    objectsToDraw[i].colors = objectsToDraw[i].colors.concat(
+                        objectsToDraw[i].color.r,
+                        objectsToDraw[i].color.g,
+                        objectsToDraw[i].color.b
+                    );
+                }
+            }
+            objectsToDraw[i].colorBuffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].colors);
+
+            // Same trick with specular colors.
+            if (!objectsToDraw[i].specularColors) {
+                // Future refactor: helper function to convert a single value or
+                // array into an array of copies of itself.
+                objectsToDraw[i].specularColors = [];
+                for (var j = 0, maxj = objectsToDraw[i].vertices.length / 3; j < maxj; j += 1) {
+                    objectsToDraw[i].specularColors = objectsToDraw[i].specularColors.concat(
+                        objectsToDraw[i].specularColor.r,
+                        objectsToDraw[i].specularColor.g,
+                        objectsToDraw[i].specularColor.b
+                    );
+                }
+            }
+            objectsToDraw[i].specularBuffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].specularColors);
+
+            // One more buffer: normals.
+            objectsToDraw[i].normalBuffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].normals);
+        }
     };
-
-
-    // Pass the vertices to WebGL.
-    for (var i = 0, maxi = objectsToDraw.length; i < maxi; i += 1) {
-        objectsToDraw[i].buffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].vertices);
-
-        if (!objectsToDraw[i].colors) {
-            // If we have a single color, we expand that into an array
-            // of the same color over and over.
-            objectsToDraw[i].colors = [];
-            for (var j = 0, maxj = objectsToDraw[i].vertices.length / 3; j < maxj; j += 1) {
-                objectsToDraw[i].colors = objectsToDraw[i].colors.concat(
-                    objectsToDraw[i].color.r,
-                    objectsToDraw[i].color.g,
-                    objectsToDraw[i].color.b
-                );
-            }
-        }
-        objectsToDraw[i].colorBuffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].colors);
-
-        // Same trick with specular colors.
-        if (!objectsToDraw[i].specularColors) {
-            // Future refactor: helper function to convert a single value or
-            // array into an array of copies of itself.
-            objectsToDraw[i].specularColors = [];
-            for (var j = 0, maxj = objectsToDraw[i].vertices.length / 3; j < maxj; j += 1) {
-                objectsToDraw[i].specularColors = objectsToDraw[i].specularColors.concat(
-                    objectsToDraw[i].specularColor.r,
-                    objectsToDraw[i].specularColor.g,
-                    objectsToDraw[i].specularColor.b
-                );
-            }
-        }
-        objectsToDraw[i].specularBuffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].specularColors);
-
-        // One more buffer: normals.
-        objectsToDraw[i].normalBuffer = GLSLUtilities.initVertexBuffer(gl, objectsToDraw[i].normals);
-    }
+    generateShapes();
 
     // Initialize the shaders.
     var abort = false;
@@ -395,6 +412,38 @@
             $("#specB").slider({value: ui.value});
         }
     });
+
+    $("#vertexNormal").click(function(){
+       objectsToDraw = [];
+       vertexNormal = $(this).is(":checked");
+       generateShapes();
+       drawScene();
+    });
+    $("#sphereButton").click(function(){
+       objectsToDraw = [];
+       shapeType = "sphere";
+       generateShapes();
+       drawScene();
+    });
+    $("#coneButton").click(function(){
+       objectsToDraw = [];
+       shapeType = "cone";
+       generateShapes();
+       drawScene();
+    });
+    $("#beveledButton").click(function(){
+       objectsToDraw = [];
+       shapeType = "beveled";
+       generateShapes();
+       drawScene();
+    });
+    $("#cubeButton").click(function(){
+       objectsToDraw = [];
+       shapeType = "cube";
+       generateShapes();
+       drawScene();
+    });
+
 
     // Draw the initial scene.
     drawScene();
